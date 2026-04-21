@@ -367,19 +367,99 @@ body {
 .nvi.active .nvi-dot { opacity:1 }
 
 .nvi-mic {
-  background: var(--accent);
-  width: 48px; height: 48px;
+  position: relative;
+  background: linear-gradient(180deg, #ff4b51 0%, #e8232a 45%, #b8151d 100%);
+  width: 54px; height: 54px;
   border-radius: 50%;
-  box-shadow: 0 6px 15px var(--accent-glow);
+  box-shadow: 0 10px 24px var(--accent-glow);
   transform: translateY(-12px);
   z-index: 210;
   display: flex; align-items: center; justify-content: center;
   border: 4px solid var(--surface);
   color: #fff; font-size: 22px;
+  overflow: visible;
 }
-.nvi-mic .nvi-icon { color: #fff; font-size: 24px }
+.nvi-mic::before,
+.nvi-mic::after {
+  content:'';
+  position:absolute;
+  inset:50% auto auto 50%;
+  translate:-50% -50%;
+  border-radius:50%;
+  pointer-events:none;
+}
+.nvi-mic::before {
+  width:100%;
+  height:100%;
+  background:
+    radial-gradient(circle at 35% 30%, rgba(255,255,255,0.45), rgba(255,255,255,0) 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+  opacity:0.95;
+}
+.nvi-mic::after {
+  width:118%;
+  height:118%;
+  border:1px solid rgba(255,255,255,0.16);
+  opacity:0.7;
+}
+.nvi-mic .nvi-icon {
+  position:relative;
+  color: #fff;
+  font-size: 22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
+}
+.mic-core {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.22), rgba(255,255,255,0.03) 60%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.mic-waves {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  opacity:0;
+  transition:opacity 0.25s ease;
+}
+.mic-wave {
+  width:3px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.95);
+  transform-origin:center bottom;
+}
+.mic-wave:nth-child(1) { height:8px }
+.mic-wave:nth-child(2) { height:14px }
+.mic-wave:nth-child(3) { height:10px }
 .nvi-mic .nvi-dot { display: none }
-.nvi-mic.listening { animation: fabPulse 1.5s ease-in-out infinite }
+.nvi-mic.listening {
+  animation: fabPulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 0 10px rgba(232,35,42,0.1), 0 12px 26px rgba(232,35,42,0.35);
+}
+.nvi-mic.listening .mic-waves {
+  opacity:1;
+}
+.nvi-mic.listening .mic-wave:nth-child(1) { animation: micWave 0.8s ease-in-out infinite }
+.nvi-mic.listening .mic-wave:nth-child(2) { animation: micWave 0.8s ease-in-out infinite 0.12s }
+.nvi-mic.listening .mic-wave:nth-child(3) { animation: micWave 0.8s ease-in-out infinite 0.24s }
+.nvi-mic.unsupported {
+  background: linear-gradient(180deg, #54515d, #2e2a35);
+  box-shadow:none;
+  opacity:0.7;
+}
+@keyframes micWave {
+  0%, 100% { transform:scaleY(0.45); opacity:0.5 }
+  50% { transform:scaleY(1.15); opacity:1 }
+}
 
 /* ── PAGES ─────────────────────────────────────────────── */
 .pg { display:none; animation: pgIn 0.4s ease }
@@ -489,6 +569,12 @@ body {
 .vstatus { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; margin-bottom:4px }
 .vtranscript { font-size:13px; color:var(--sub); min-height:20px; margin-bottom:16px; transition:all 0.3s }
 .vtranscript.active { color:var(--accent); font-weight:600 }
+.vhint {
+  font-size:11px;
+  color:var(--sub);
+  margin:-6px 0 14px;
+  letter-spacing:0.03em;
+}
 .vcmds { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:20px }
 .vcmd { background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); color:var(--sub); padding:5px 10px; border-radius:8px; font-size:11px; font-weight:500 }
 .vclose-btn { background:none; border:1px solid var(--glass-border); color:var(--sub); padding:10px 28px; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-weight:600; transition:all 0.2s }
@@ -690,7 +776,16 @@ body {
 <nav class="bnav">
   <button class="nvi active" data-page="home"><span class="nvi-icon">🏠</span>Home<span class="nvi-dot"></span></button>
   <button class="nvi" data-page="trending"><span class="nvi-icon">🔥</span>Trending<span class="nvi-dot"></span></button>
-  <button class="nvi nvi-mic" onclick="startVoice()"><span class="nvi-icon">🎙️</span></button>
+  <button class="nvi nvi-mic" id="voiceTrigger" onclick="startVoice()" title="Open voice commands" aria-label="Open voice commands">
+    <span class="nvi-icon">
+      <span class="mic-core">🎙️</span>
+      <span class="mic-waves" aria-hidden="true">
+        <span class="mic-wave"></span>
+        <span class="mic-wave"></span>
+        <span class="mic-wave"></span>
+      </span>
+    </span>
+  </button>
   <button class="nvi" data-page="bookmarks"><span class="nvi-icon">🔖</span>Archive<span class="nvi-dot"></span></button>
   <button class="nvi" data-page="ai" onclick="switchStudioTab('brief')"><span class="nvi-icon">✨</span>Studio<span class="nvi-dot"></span></button>
 </nav>
@@ -707,6 +802,7 @@ body {
     </div>
     <div class="vstatus" id="vStatus">Tap to speak</div>
     <div class="vtranscript" id="vTranscript">Say a command...</div>
+    <div class="vhint" id="vHint">Try: “Read news”, “Show sports”, or “Open studio”</div>
     <div class="vcmds">
       <span class="vcmd">"Read news"</span>
       <span class="vcmd">"Show sports"</span>
@@ -740,6 +836,30 @@ const CAT_IMAGES = {
   Film: ['bollywood,cinema','movie,premiere','actor,actress','film+festival','director,clapper','red+carpet','blockbuster','streaming,entertainment']
 };
 const EMOJI = {News:'📰',Tech:'💻',Sports:'⚽',Finance:'💹',Health:'🏥',World:'🌍',Life:'🧘',Education:'🎓',Film:'🎬',All:'🗞️'};
+const CATEGORY_LABELS = {
+  en: { All: 'All', News: 'News', Tech: 'Tech', Sports: 'Sports', Finance: 'Finance', Health: 'Health', World: 'World', Education: 'Education', Film: 'Film', Breaking: 'Breaking', Search: 'Search' },
+  te: { All: 'అన్ని', News: 'వార్తలు', Tech: 'టెక్', Sports: 'క్రీడలు', Finance: 'ఫైనాన్స్', Health: 'ఆరోగ్యం', World: 'ప్రపంచం', Education: 'విద్య', Film: 'సినిమా', Breaking: 'తాజా', Search: 'శోధన' },
+  hi: { All: 'सभी', News: 'समाचार', Tech: 'टेक', Sports: 'खेल', Finance: 'वित्त', Health: 'स्वास्थ्य', World: 'दुनिया', Education: 'शिक्षा', Film: 'फिल्म', Breaking: 'ताज़ा', Search: 'खोज' },
+  ta: { All: 'அனைத்தும்', News: 'செய்திகள்', Tech: 'டெக்', Sports: 'விளையாட்டு', Finance: 'நிதி', Health: 'உடல்நலம்', World: 'உலகம்', Education: 'கல்வி', Film: 'திரைப்படம்', Breaking: 'முக்கியம்', Search: 'தேடல்' },
+  ml: { All: 'എല്ലാം', News: 'വാർത്തകൾ', Tech: 'ടെക്', Sports: 'സ്പോർട്സ്', Finance: 'ഫിനാൻസ്', Health: 'ആരോഗ്യം', World: 'ലോകം', Education: 'വിദ്യാഭ്യാസം', Film: 'സിനിമ', Breaking: 'തത്സമയം', Search: 'തിരച്ചിൽ' },
+  mr: { All: 'सर्व', News: 'बातम्या', Tech: 'टेक', Sports: 'क्रीडा', Finance: 'वित्त', Health: 'आरोग्य', World: 'जग', Education: 'शिक्षण', Film: 'चित्रपट', Breaking: 'ताजे', Search: 'शोध' },
+  bn: { All: 'সব', News: 'খবর', Tech: 'টেক', Sports: 'খেলা', Finance: 'ফিন্যান্স', Health: 'স্বাস্থ্য', World: 'বিশ্ব', Education: 'শিক্ষা', Film: 'সিনেমা', Breaking: 'সর্বশেষ', Search: 'অনুসন্ধান' },
+  gu: { All: 'બધા', News: 'સમાચાર', Tech: 'ટેક', Sports: 'રમતગમત', Finance: 'ફાઇનાન્સ', Health: 'આરોગ્ય', World: 'વિશ્વ', Education: 'શિક્ષણ', Film: 'ફિલ્મ', Breaking: 'તાજા', Search: 'શોધ' },
+  kn: { All: 'ಎಲ್ಲ', News: 'ಸುದ್ದಿ', Tech: 'ಟೆಕ್', Sports: 'ಕ್ರೀಡೆ', Finance: 'ಹಣಕಾಸು', Health: 'ಆರೋಗ್ಯ', World: 'ವಿಶ್ವ', Education: 'ಶಿಕ್ಷಣ', Film: 'ಚಿತ್ರ', Breaking: 'ತಾಜಾ', Search: 'ಹುಡುಕಾಟ' },
+  pa: { All: 'ਸਭ', News: 'ਖ਼ਬਰਾਂ', Tech: 'ਟੈਕ', Sports: 'ਖੇਡਾਂ', Finance: 'ਫਾਇਨੈਂਸ', Health: 'ਸਿਹਤ', World: 'ਦੁਨੀਆ', Education: 'ਸਿੱਖਿਆ', Film: 'ਫਿਲਮ', Breaking: 'ਤਾਜ਼ਾ', Search: 'ਖੋਜ' }
+};
+const UI_TEXTS = {
+  en: { searchPlaceholder: 'Search global news...', homeTitle: '📍 Home & Top Stories', clearResults: 'CLEAR Results' },
+  te: { searchPlaceholder: 'ప్రపంచ వార్తలను శోధించండి...', homeTitle: '📍 హోమ్ & టాప్ స్టోరీస్', clearResults: 'ఫలితాలు క్లియర్' },
+  hi: { searchPlaceholder: 'वैश्विक समाचार खोजें...', homeTitle: '📍 होम और टॉप स्टोरीज़', clearResults: 'परिणाम साफ़ करें' },
+  ta: { searchPlaceholder: 'உலகச் செய்திகளைத் தேடுங்கள்...', homeTitle: '📍 முகப்பு & முக்கிய செய்திகள்', clearResults: 'முடிவுகளை நீக்கு' },
+  ml: { searchPlaceholder: 'ആഗോള വാർത്തകൾ തിരയുക...', homeTitle: '📍 ഹോം & ടോപ് സ്റ്റോറിയുകൾ', clearResults: 'ഫലങ്ങൾ നീക്കുക' },
+  mr: { searchPlaceholder: 'जागतिक बातम्या शोधा...', homeTitle: '📍 होम आणि टॉप स्टोरीज', clearResults: 'निकाल साफ करा' },
+  bn: { searchPlaceholder: 'বিশ্ব সংবাদ খুঁজুন...', homeTitle: '📍 হোম ও টপ স্টোরিজ', clearResults: 'ফলাফল মুছুন' },
+  gu: { searchPlaceholder: 'વિશ્વ સમાચાર શોધો...', homeTitle: '📍 હોમ અને ટોપ સ્ટોરીઝ', clearResults: 'પરિણામો સાફ કરો' },
+  kn: { searchPlaceholder: 'ಜಗತ್ತಿನ ಸುದ್ದಿಗಳನ್ನು ಹುಡುಕಿ...', homeTitle: '📍 ಹೋಮ್ & ಟಾಪ್ ಸ್ಟೋರೀಸ್', clearResults: 'ಫಲಿತಾಂಶ ತೆರವು' },
+  pa: { searchPlaceholder: 'ਦੁਨੀਆ ਭਰ ਦੀਆਂ ਖ਼ਬਰਾਂ ਖੋਜੋ...', homeTitle: '📍 ਹੋਮ ਅਤੇ ਟਾਪ ਸਟੋਰੀਜ਼', clearResults: 'ਨਤੀਜੇ ਸਾਫ਼ ਕਰੋ' }
+};
 const VOICE_LANG_MAP = {
   en: 'en-US',
   te: 'te-IN',
@@ -766,6 +886,7 @@ let isListening = false;
 let isLoadingMore = false;
 let newsPage = 0;
 let isSpeaking = false;
+const translationCache = new Map();
 
 // ── GNEWS CONFIG ───────────────────────────────────────────
 const GNEWS_KEY = '31854bc64cbdfbf99050fb2876fa1ca5';
@@ -842,6 +963,52 @@ async function searchGNews(q) {
   }
 }
 
+function getLocalizedCategory(category) {
+  return (CATEGORY_LABELS[currentLang] && CATEGORY_LABELS[currentLang][category]) ||
+    (CATEGORY_LABELS.en && CATEGORY_LABELS.en[category]) ||
+    category;
+}
+
+async function translateText(text, targetLang) {
+  const cleanText = String(text || '').trim();
+  if (!cleanText || targetLang === 'en') return cleanText;
+
+  const cacheKey = `${targetLang}::${cleanText}`;
+  if (translationCache.has(cacheKey)) return translationCache.get(cacheKey);
+
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(cleanText)}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Translation API error');
+    const data = await res.json();
+    const translated = Array.isArray(data?.[0]) ? data[0].map(part => part[0]).join('') : cleanText;
+    translationCache.set(cacheKey, translated || cleanText);
+    return translated || cleanText;
+  } catch (err) {
+    console.warn('Translation failed:', err.message);
+    translationCache.set(cacheKey, cleanText);
+    return cleanText;
+  }
+}
+
+async function localizeArticles(articles) {
+  if (!Array.isArray(articles) || !articles.length) return articles;
+
+  if (currentLang === 'en') {
+    return articles.map(article => ({
+      ...article,
+      category: getLocalizedCategory(article.category)
+    }));
+  }
+
+  return Promise.all(articles.map(async article => ({
+    ...article,
+    category: getLocalizedCategory(article.category),
+    title: await translateText(article.title, currentLang),
+    summary: await translateText(article.summary, currentLang)
+  })));
+}
+
 function execSearch() {
   const q = document.getElementById('searchInput').value.trim();
   if (!q) return;
@@ -850,11 +1017,12 @@ function execSearch() {
   document.getElementById('clearSearch').style.display = 'block';
   feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--sub)"><span class="scroll-spinner"></span> Searching universe...</div>';
   
-  searchGNews(q).then(results => {
+  searchGNews(q).then(async results => {
     feed.innerHTML = '';
     if (results && results.length) {
-      newsData = results;
-      renderCards(results, feed);
+      const localizedResults = await localizeArticles(results);
+      newsData = localizedResults;
+      renderCards(localizedResults, feed);
     } else {
       feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--sub)">No matching stories found. Check your spelling?</div>';
     }
@@ -863,7 +1031,7 @@ function execSearch() {
 
 function clearSearch() {
   document.getElementById('searchInput').value = '';
-  document.getElementById('feedTitle').querySelector('span').textContent = `📍 Home & Top Stories`;
+  document.getElementById('feedTitle').querySelector('span').textContent = getUIText('homeTitle');
   document.getElementById('clearSearch').style.display = 'none';
   loadNews(currentCat);
 }
@@ -1023,10 +1191,11 @@ function fallbackInit() {
 // ── CATEGORIES ─────────────────────────────────────────────
 function buildCats() {
   const bar = document.getElementById('catsBar');
+  bar.innerHTML = '';
   CATS.forEach(cat => {
     const b = document.createElement('button');
-    b.className = 'cbt' + (cat === 'All' ? ' active' : '');
-    b.textContent = `${EMOJI[cat] || '•'} ${cat}`;
+    b.className = 'cbt' + (cat === currentCat ? ' active' : '');
+    b.textContent = `${EMOJI[cat] || '•'} ${getLocalizedCategory(cat)}`;
     b.onclick = () => {
       currentCat = cat; newsPage = 0;
       bar.querySelectorAll('.cbt').forEach(x => x.classList.remove('active'));
@@ -1035,6 +1204,25 @@ function buildCats() {
     };
     bar.appendChild(b);
   });
+}
+
+function getUIText(key) {
+  return (UI_TEXTS[currentLang] && UI_TEXTS[currentLang][key]) ||
+    (UI_TEXTS.en && UI_TEXTS.en[key]) ||
+    '';
+}
+
+function applyLanguageUI() {
+  document.documentElement.lang = currentLang;
+  const searchInput = document.getElementById('searchInput');
+  const clearButton = document.getElementById('clearSearch');
+  const feedTitle = document.getElementById('feedTitle')?.querySelector('span');
+  if (searchInput) searchInput.placeholder = getUIText('searchPlaceholder');
+  if (clearButton) clearButton.textContent = getUIText('clearResults');
+  if (feedTitle && clearButton && clearButton.style.display === 'none') {
+    feedTitle.textContent = getUIText('homeTitle');
+  }
+  buildCats();
 }
 
 // ── NAV ───────────────────────────────────────────────────
@@ -1061,6 +1249,7 @@ function setupButtons() {
   document.body.classList.toggle('light', !isDark);
   document.getElementById('darkBtn').textContent = isDark ? '🌙' : '☀️';
   document.getElementById('langSel').value = currentLang;
+  applyLanguageUI();
   document.getElementById('darkBtn').onclick = toggleDark;
   document.getElementById('refreshBtn').onclick = () => { toast("🔄 Refreshing..."); newsPage = 0; loadNews(currentCat); };
   document.getElementById('vClose').onclick = stopVoice;
@@ -1068,6 +1257,7 @@ function setupButtons() {
     currentLang = e.target.value;
     localStorage.setItem('nb_lang', currentLang);
     if (recognition) recognition.lang = VOICE_LANG_MAP[currentLang] || 'en-US';
+    applyLanguageUI();
     toast("🌐 Language updated");
     newsPage = 0;
     if (document.getElementById('searchInput') && document.getElementById('searchInput').value) {
@@ -1289,15 +1479,16 @@ function loadNews(cat) {
   const feed = document.getElementById('homeFeed');
   feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--sub)"><span class="scroll-spinner"></span><br>Synthesizing real-time stories...</div>';
   
-  fetchGNews(cat).then(articles => {
+  fetchGNews(cat).then(async articles => {
     feed.innerHTML = '';
     if (articles && articles.length > 0) {
-      newsData = articles;
-      renderCards(articles, feed);
+      const localizedArticles = await localizeArticles(articles);
+      newsData = localizedArticles;
+      renderCards(localizedArticles, feed);
       updateTicker();
     } else {
       // Fallback to mock data if API fails
-      const batch = generateBatch(cat, 0);
+      const batch = await localizeArticles(generateBatch(cat, 0));
       newsData = batch;
       renderCards(batch, feed);
       updateTicker();
@@ -1316,12 +1507,14 @@ function loadMoreNews() {
   // For this demo, let's just generate more mock data for "infinite" feel if we already have real data
   setTimeout(() => {
     const batch = generateBatch(currentCat, newsPage);
-    newsData = newsData.concat(batch);
     const feed = document.getElementById('homeFeed');
-    renderCards(batch, feed);
-    newsPage++;
-    isLoadingMore = false;
-    document.getElementById('scrollLoader').style.display = 'none';
+    localizeArticles(batch).then(localizedBatch => {
+      newsData = newsData.concat(localizedBatch);
+      renderCards(localizedBatch, feed);
+      newsPage++;
+      isLoadingMore = false;
+      document.getElementById('scrollLoader').style.display = 'none';
+    });
   }, 600);
 }
 
@@ -1356,7 +1549,7 @@ function loadTrending() {
       items.push({ ...a, category: c, time: 'Trending', hot: true, imgIndex: i + 200, imgHint: a.imgHint || c });
     }
     feed.innerHTML = '';
-    renderCards(items, feed);
+    localizeArticles(items).then(localizedItems => renderCards(localizedItems, feed));
   }, 700);
 }
 
@@ -1442,12 +1635,19 @@ function hideSpeakerBar() {
 // ── STT (Speech-to-Text) with Enhanced Voice Modal ────────
 function setupVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) return;
+  voiceBadge = document.querySelector('.nvi-mic');
+  if (!SR) {
+    if (voiceBadge) {
+      voiceBadge.classList.add('unsupported');
+      voiceBadge.title = 'Voice commands are not supported in this browser';
+      voiceBadge.setAttribute('aria-label', 'Voice commands are not supported in this browser');
+    }
+    return;
+  }
   recognition = new SR();
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.lang = VOICE_LANG_MAP[currentLang] || 'en-US';
-  voiceBadge = document.querySelector('.nvi-mic');
   
   recognition.onresult = e => {
     let interim = '', final = '';
@@ -1469,15 +1669,25 @@ function setupVoice() {
     document.getElementById('vRing').classList.remove('on');
     setVoiceListeningState(false);
     document.getElementById('vStatus').textContent = 'Tap to speak';
+    document.getElementById('vHint').textContent = 'Try: “Read news”, “Show sports”, or “Open studio”';
   };
   
   recognition.onerror = e => {
     document.getElementById('vStatus').textContent = 'Error: ' + e.error;
+    document.getElementById('vHint').textContent = 'Check microphone permission and try again.';
     isListening = false;
   };
 }
 
 function startVoice() {
+  if (!recognition) {
+    toast("🎙 Voice commands are not supported here");
+    return;
+  }
+  if (isListening) {
+    stopVoice();
+    return;
+  }
   document.getElementById('vOvl').classList.add('show');
   document.getElementById('vOrb').classList.add('on');
   document.getElementById('vRing').classList.add('on');
@@ -1485,6 +1695,7 @@ function startVoice() {
   document.getElementById('vStatus').textContent = 'Listening...';
   document.getElementById('vTranscript').textContent = 'Say a command...';
   document.getElementById('vTranscript').classList.remove('active');
+  document.getElementById('vHint').textContent = 'Tap the mic again or press Dismiss to stop listening.';
   
   if (recognition && !isListening) {
     try { recognition.start(); isListening = true; } catch(e) {}
@@ -1896,7 +2107,10 @@ function setActiveNav(page) {
 }
 
 function setVoiceListeningState(active) {
-  if (voiceBadge) voiceBadge.classList.toggle('listening', active);
+  if (!voiceBadge) return;
+  voiceBadge.classList.toggle('listening', active);
+  voiceBadge.title = active ? 'Stop voice commands' : 'Open voice commands';
+  voiceBadge.setAttribute('aria-label', active ? 'Stop voice commands' : 'Open voice commands');
 }
 
 // Load voices early
