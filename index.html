@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+<title>NexBrief News | AI Editorial Intelligence</title>
+<meta name="description" content="NexBrief News - AI-powered, location-aware news platform with infinite scroll, AI video generation, and voice intelligence.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════
+   NEXBRIEF NEWS — DESIGN SYSTEM v2.0
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  --accent: #E8232A;
+  --accent-dim: #B81B20;
+  --accent-glow: rgba(232, 35, 42, 0.35);
+  --accent-glow-lo: rgba(232, 35, 42, 0.18);
+  --accent-soft: rgba(232, 35, 42, 0.12);
+  --bg: #0A0A0F;
+  --surface: rgba(20, 18, 25, 0.75);
+  --surface-solid: #14121A;
+  --surface-bright: rgba(38, 34, 46, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border-hi: rgba(255, 255, 255, 0.14);
+  --text: #F0EEF5;
+  --sub: #8E8C95;
+  --blur: 28px;
+  --radius: 18px;
+  --radius-sm: 12px;
+  --inner-glow: inset 0 1px 0 rgba(255,255,255,0.04);
+  --shadow-sm: 0 8px 20px rgba(0,0,0,0.16);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.25);
+  --shadow-float: 0 16px 48px rgba(0,0,0,0.5);
+}
+
+body.light {
+  --bg: #F2F0F7;
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-solid: #FFFFFF;
+  --surface-bright: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-border-hi: rgba(0, 0, 0, 0.12);
+  --text: #1A1A2E;
+  --sub: #6B6978;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-float: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+/* ── RESET & BASE ──────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(232,35,42,0.13), transparent 34%),
+    radial-gradient(circle at 85% 12%, rgba(255,255,255,0.06), transparent 22%),
+    linear-gradient(180deg, rgba(255,255,255,0.02), transparent 24%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  min-height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-bottom: 80px;
+  position: relative;
+  overflow-x: hidden;
+  transition: background 0.5s ease, color 0.5s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── SCROLLBAR ─────────────────────────────────────────── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--glass-border-hi);border-radius:4px}
+
+/* ── HEADER ────────────────────────────────────────────── */
+.hdr {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border-bottom: 1px solid var(--glass-border);
+  padding: 12px 16px 10px;
+}
+.hdr-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px }
+.logo { font-family:'Outfit',sans-serif; font-size:22px; font-weight:900; letter-spacing:-0.5px; color:var(--accent); display:flex; align-items:center; gap:6px }
+.logo span { color:var(--text) }
+.logo-dot { width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite }
+
+.sbox {
+  background: var(--surface); border:1px solid var(--glass-border);
+  border-radius: 14px; padding: 2px 6px 2px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin: 16px 16px 12px; transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+.sbox:focus-within { border-color: var(--accent); box-shadow: 0 4px 15px var(--accent-glow-lo) }
+.sbox input {
+  flex: 1; background: none; border: none;
+  height: 38px; color: var(--text); font-size: 14px;
+  outline: none; font-weight: 500
+}
+.sbox-btn {
+  background: var(--accent); color: #fff;
+  border: none; border-radius: 10px;
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: transform 0.2s;
+}
+.sbox-btn:active { transform: scale(0.9) }
+
+.liquid-btn {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.liquid-btn > span,
+.liquid-btn > strong,
+.liquid-btn > em {
+  position: relative;
+  z-index: 2;
+}
+.liquid-btn::before,
+.liquid-btn::after {
+  content:'';
+  position:absolute;
+  inset:auto;
+  width:140%;
+  height:180%;
+  left:-20%;
+  bottom:-145%;
+  border-radius:42%;
+  background:
+    radial-gradient(circle at 35% 35%, rgba(255,255,255,0.32), rgba(255,255,255,0) 32%),
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.02));
+  transition: transform 0.45s ease, bottom 0.45s ease;
+  z-index: 1;
+  pointer-events: none;
+}
+.liquid-btn::after {
+  width:135%;
+  left:-17%;
+  bottom:-155%;
+  border-radius:46%;
+  opacity:0.55;
+  animation: liquidDrift 5.5s linear infinite;
+}
+.liquid-btn::before {
+  animation: liquidDriftReverse 7s linear infinite;
+}
+.liquid-btn:hover::before,
+.liquid-btn:hover::after,
+.liquid-btn:focus-visible::before,
+.liquid-btn:focus-visible::after {
+  bottom:-95%;
+}
+.liquid-btn:hover,
+.liquid-btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px var(--accent-glow);
+}
+@keyframes liquidDrift {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes liquidDriftReverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.hbts { display:flex; gap:6px }
+.hbt {
+  background: rgba(255,255,255,0.05); border:1px solid var(--glass-border);
+  border-radius: var(--radius-sm); width:38px; height:38px; font-size:16px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition: all 0.25s ease; color:var(--text)
+}
+.hbt:hover { background:var(--accent); color:#fff; border-color:var(--accent); transform:scale(1.05) }
+
+.lang-sel {
+  background: rgba(255,255,255,0.05); border:1px solid var(--glass-border);
+  border-radius: var(--radius-sm); height:38px; font-size:14px;
+  color:var(--text); outline:none; padding: 0 10px; cursor:pointer;
+  transition: all 0.25s ease;
+  appearance: none; -webkit-appearance: none;
+}
+.lang-sel:hover, .lang-sel:focus { border-color:var(--accent); box-shadow: 0 0 10px var(--accent-glow-lo) }
+.lang-sel option { background: var(--surface); color: var(--text) }
+
+.cats { display:flex; gap:6px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none; -ms-overflow-style:none }
+.cats::-webkit-scrollbar { display:none }
+.cbt {
+  border:1px solid var(--glass-border); background:transparent;
+  color:var(--sub); padding:6px 14px; border-radius:20px;
+  font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;
+  transition: all 0.3s ease; flex-shrink:0
+}
+.cbt.active { background:var(--accent); color:#fff; border-color:var(--accent); box-shadow:0 0 16px var(--accent-glow) }
+
+/* ── BREAKING NEWS TICKER ──────────────────────────────── */
+.brk {
+  background: var(--accent-soft); height:32px;
+  display:flex; align-items:center; gap:10px;
+  padding: 0 16px; font-size:12px; font-weight:600;
+  overflow:hidden; border-bottom:1px solid var(--glass-border); color:var(--text)
+}
+.brk-badge { background:var(--accent); color:#fff; padding:2px 7px; border-radius:4px; font-size:9px; font-weight:800; text-transform:uppercase; animation:pulse 2s infinite; flex-shrink:0 }
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.brk-scroll { overflow:hidden; flex:1 }
+.brk-txt { white-space:nowrap; animation:ticker 28s linear infinite; display:inline-block }
+@keyframes ticker{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+
+/* ── WEATHER ───────────────────────────────────────────── */
+.wbox {
+  margin:14px 16px; border-radius:var(--radius);
+  background: linear-gradient(135deg, #E8232A 0%, #8B1520 100%);
+  color:#fff; padding:18px 20px;
+  display:flex; justify-content:space-between; align-items:center;
+  box-shadow: 0 8px 28px rgba(232,35,42,0.2);
+  position:relative; overflow:hidden
+}
+.wbox::before { content:''; position:absolute; top:-40%; right:-15%; width:160px; height:160px; background:rgba(255,255,255,0.08); border-radius:50% }
+.wbox::after { content:''; position:absolute; bottom:-30%; left:-10%; width:100px; height:100px; background:rgba(255,255,255,0.05); border-radius:50% }
+.wl { display:flex; flex-direction:column; gap:2px; z-index:1 }
+.wcity { font-size:12px; font-weight:600; opacity:.85; text-transform:uppercase; letter-spacing:.8px }
+.wtemp { font-family:'Outfit',sans-serif; font-size:38px; font-weight:900; line-height:1 }
+.wdesc { font-size:13px; font-weight:500; opacity:.9 }
+.wicon { font-size:50px; z-index:1; filter:drop-shadow(0 4px 8px rgba(0,0,0,0.2)) }
+
+/* ── SECTION LABEL ─────────────────────────────────────── */
+.stitle {
+  padding:18px 16px 10px;
+  font-family:'Outfit',sans-serif; font-size:16px; font-weight:800;
+  color:var(--text); display:flex; align-items:center; gap:8px
+}
+.stitle::after { content:''; height:1.5px; flex:1; background: linear-gradient(90deg, var(--glass-border-hi), transparent); border-radius:1px }
+
+/* ── NEWS CARD ─────────────────────────────────────────── */
+.feed { display:flex; flex-direction:column; gap:14px; padding:0 16px }
+
+.ncard {
+  background: var(--surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: cardIn 0.5s ease forwards;
+}
+@keyframes cardIn { to { opacity:1; transform:translateY(0) } }
+.ncard:hover { transform:translateY(-3px); border-color:var(--accent); box-shadow: 0 12px 36px rgba(232,35,42,0.12) }
+.ncard:focus-visible {
+  outline:none;
+  border-color:var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow-lo), 0 12px 36px rgba(232,35,42,0.12);
+}
+
+.ncard-img {
+  width:100%; height:180px;
+  background: var(--surface-solid);
+  position: relative; overflow:hidden
+}
+.ncard-img img {
+  width:100%; height:100%; object-fit:cover;
+  transition: transform 0.6s ease
+}
+.ncard:hover .ncard-img img { transform:scale(1.05) }
+.ncard-img .img-overlay {
+  position:absolute; inset:0;
+  background: linear-gradient(transparent 50%, rgba(0,0,0,0.6) 100%);
+  transition: background 0.3s ease
+}
+.ncard:hover .ncard-img .img-overlay { background: linear-gradient(transparent 30%, rgba(0,0,0,0.8) 100%) }
+.ncard-img .img-badge {
+  position:absolute; top:12px; right:12px;
+  background: var(--accent); color:#fff;
+  font-size:10px; font-weight:800; text-transform:uppercase;
+  padding:4px 10px; border-radius:8px; opacity:0;
+  transform: translateY(-5px); transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--accent-glow)
+}
+.ncard:hover .ncard-img .img-badge { opacity:1; transform: translateY(0) }
+.ncard-img .img-fallback {
+  width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:56px; background: linear-gradient(135deg, var(--surface-solid), var(--bg))
+}
+
+.ncard-body { padding:16px }
+.ntag-row { display:flex; align-items:center; gap:6px; margin-bottom:8px; flex-wrap:wrap }
+.ntag { font-size:10px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.6px; background:var(--accent-soft); padding:3px 8px; border-radius:6px }
+.ntag.hot { background:rgba(255,160,0,0.15); color:#FFA000 }
+.ntitle { font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; line-height:1.4; margin-bottom:8px; color:var(--text) }
+.nshort { font-size:13px; color:var(--sub); line-height:1.55; margin-bottom:14px }
+.nmeta { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px }
+.nsource {
+  font-size:10px;
+  font-weight:700;
+  color:var(--sub);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+.nfoot { display:flex; align-items:center; justify-content:space-between }
+.ntime { font-size:11px; color:var(--sub); display:flex; align-items:center; gap:4px }
+
+.nacts { display:flex; gap:6px }
+.nact {
+  background: rgba(255,255,255,0.04); border:1px solid var(--glass-border);
+  cursor:pointer; font-size:14px; width:32px; height:32px;
+  border-radius:10px; display:flex; align-items:center; justify-content:center;
+  transition: all 0.2s ease; color:var(--text)
+}
+.nact:hover { background:var(--accent); color:#fff; border-color:var(--accent) }
+.nact.saved { background:var(--accent); color:#fff; border-color:var(--accent) }
+.act-read {
+  min-width:88px;
+  width:auto !important;
+  padding:0 12px !important;
+  font-size:11px !important;
+  font-weight:700 !important;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim)) !important;
+  color:#fff !important;
+  border-color:var(--accent) !important;
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+/* ── INFINITE SCROLL LOADER ────────────────────────────── */
+.scroll-loader {
+  text-align:center; padding:24px; color:var(--sub); font-size:13px
+}
+.scroll-spinner {
+  display:inline-block; width:24px; height:24px;
+  border:2.5px solid var(--glass-border-hi);
+  border-top-color:var(--accent);
+  border-radius:50%; animation:spin 0.8s linear infinite;
+  vertical-align:middle; margin-right:8px
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BOTTOM NAV ────────────────────────────────────────── */
+.bnav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px;
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border-top:1px solid var(--glass-border);
+  display:flex; height:68px; z-index:200; padding:0 8px
+}
+.nvi {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; border:none; background:none; color:var(--sub);
+  font-size:10px; font-weight:600; cursor:pointer; transition:all 0.3s
+}
+.nvi.active { color:var(--accent) }
+.nvi-icon { font-size:20px; transition:all 0.3s }
+.nvi.active .nvi-icon { transform:translateY(-2px) scale(1.15) }
+.nvi-dot { width:4px; height:4px; border-radius:50%; background:var(--accent); opacity:0; transition:opacity 0.3s }
+.nvi.active .nvi-dot { opacity:1 }
+
+.nvi-mic {
+  background: var(--accent);
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  box-shadow: 0 6px 15px var(--accent-glow);
+  transform: translateY(-12px);
+  z-index: 210;
+  display: flex; align-items: center; justify-content: center;
+  border: 4px solid var(--surface);
+  color: #fff; font-size: 22px;
+}
+.nvi-mic .nvi-icon { color: #fff; font-size: 24px }
+.nvi-mic .nvi-dot { display: none }
+.nvi-mic.listening { animation: fabPulse 1.5s ease-in-out infinite }
+
+/* ── PAGES ─────────────────────────────────────────────── */
+.pg { display:none; animation: pgIn 0.4s ease }
+.pg.active { display:block }
+@keyframes pgIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+/* ── AI STUDIO PAGE ────────────────────────────────────── */
+.aipg { padding:16px; display:flex; flex-direction:column; gap:16px }
+
+/* ─── Studio Tabs ─── */
+.studio-tabs { display:flex; gap:0; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); border-radius:var(--radius-sm); overflow:hidden; margin-bottom:4px }
+.studio-tab {
+  flex:1; padding:12px 8px; font-size:13px; font-weight:700; cursor:pointer;
+  background:transparent; border:none; color:var(--sub); transition:all 0.25s;
+  font-family:'Outfit',sans-serif; letter-spacing:0.3px;
+}
+.studio-tab.active { background:var(--accent); color:#fff; box-shadow:0 0 16px var(--accent-glow) }
+.studio-tab:not(.active):hover { background:rgba(255,255,255,0.06); color:var(--text) }
+.studio-panel { display:none; animation:fadeIn 0.35s ease }
+.studio-panel.active { display:block }
+.ai-card {
+  background: var(--surface); backdrop-filter:blur(20px);
+  border:1px solid var(--glass-border); border-radius:var(--radius);
+  padding:20px; box-shadow: var(--shadow-card)
+}
+.ai-h { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; margin-bottom:6px; display:flex; align-items:center; gap:8px }
+.ai-s { font-size:13px; color:var(--sub); margin-bottom:16px; line-height:1.5 }
+.ai-ta {
+  width:100%; background:rgba(0,0,0,0.15); border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm); padding:14px; font-size:13px; color:var(--text);
+  min-height:120px; outline:none; transition:border-color 0.3s;
+  font-family:inherit; resize:none
+}
+.ai-ta:focus { border-color:var(--accent) }
+.ai-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  color:#fff; border:none; border-radius:var(--radius-sm);
+  padding:14px; font-size:14px; font-weight:700; cursor:pointer; width:100%;
+  box-shadow: 0 6px 20px var(--accent-glow); transition:all 0.25s; margin-top:12px
+}
+.ai-btn:active { transform:scale(0.97) }
+.ai-btn:disabled { opacity:0.5; cursor:not-allowed }
+.ai-btn:disabled::before,
+.ai-btn:disabled::after { display:none }
+
+.aibox { margin-top:16px; display:none; animation:fadeIn 0.5s ease }
+.aibox-lbl { font-size:10px; font-weight:800; color:var(--accent); text-transform:uppercase; letter-spacing:1px; margin-bottom:10px }
+.aibox-txt { font-size:14px; line-height:1.75; color:var(--text); white-space:pre-wrap }
+.ai-actions { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap }
+.ai-act-btn {
+  background: rgba(255,255,255,0.05); border:1px solid var(--glass-border);
+  color:var(--text); padding:8px 14px; border-radius:10px;
+  font-size:12px; font-weight:600; cursor:pointer; transition:all 0.2s
+}
+.ai-act-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent) }
+
+/* ── VIDEO STUDIO ──────────────────────────────────────── */
+.vid-preview {
+  margin-top:16px; border-radius:var(--radius-sm); overflow:hidden;
+  background:#000; aspect-ratio:16/9; position:relative; display:none
+}
+.vid-canvas { width:100%; height:100%; display:block }
+.vid-controls {
+  position:absolute; bottom:0; left:0; right:0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  padding:12px; display:flex; align-items:center; gap:8px
+}
+.vid-ctrl-btn {
+  background:rgba(255,255,255,0.15); border:none; color:#fff;
+  width:32px; height:32px; border-radius:8px; font-size:14px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center
+}
+.vid-progress { flex:1; height:3px; background:rgba(255,255,255,0.2); border-radius:2px; overflow:hidden }
+.vid-progress-bar { height:100%; background:var(--accent); border-radius:2px; width:0%; transition:width 0.1s linear }
+.vid-time { color:rgba(255,255,255,0.7); font-size:11px; font-weight:600 }
+
+/* ── VOICE MODAL ───────────────────────────────────────── */
+.ovl { display:none; position:fixed; inset:0; background:rgba(10,10,15,0.92); z-index:500; align-items:center; justify-content:center; backdrop-filter:blur(12px) }
+.ovl.show { display:flex }
+.vmodal {
+  background: var(--surface-solid); border:1px solid var(--glass-border-hi);
+  border-radius:28px; padding:36px 24px; text-align:center;
+  width:340px; max-width:92vw; box-shadow: var(--shadow-float)
+}
+.vorb-wrap { position:relative; width:120px; height:120px; margin:0 auto 20px }
+.vorb {
+  width:100%; height:100%; border-radius:50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+  opacity:0.3; position:absolute; inset:0
+}
+.vorb.on { animation:orbPulse 1.5s ease-in-out infinite }
+@keyframes orbPulse {
+  0%,100% { transform:scale(1); opacity:0.25 }
+  50% { transform:scale(1.4); opacity:0.5 }
+}
+.vorb-ring {
+  position:absolute; inset:15px; border-radius:50%;
+  border:2px solid var(--accent); opacity:0.4
+}
+.vorb-ring.on { animation:ringPulse 1.5s ease-in-out infinite 0.2s }
+@keyframes ringPulse {
+  0%,100% { transform:scale(1); opacity:0.3 }
+  50% { transform:scale(1.2); opacity:0.6 }
+}
+.vorb-icon { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:40px; z-index:2 }
+
+.vstatus { font-family:'Outfit',sans-serif; font-size:18px; font-weight:800; margin-bottom:4px }
+.vtranscript { font-size:13px; color:var(--sub); min-height:20px; margin-bottom:16px; transition:all 0.3s }
+.vtranscript.active { color:var(--accent); font-weight:600 }
+.vcmds { display:flex; flex-wrap:wrap; gap:6px; justify-content:center; margin-bottom:20px }
+.vcmd { background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); color:var(--sub); padding:5px 10px; border-radius:8px; font-size:11px; font-weight:500 }
+.vclose-btn { background:none; border:1px solid var(--glass-border); color:var(--sub); padding:10px 28px; border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-weight:600; transition:all 0.2s }
+.vclose-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent) }
+
+/* ── VOICE FAB ─────────────────────────────────────────── */
+.vfab {
+  position:fixed; bottom:82px; right:16px; width:54px; height:54px;
+  border-radius:50%; background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  color:#fff; border:none; font-size:22px; cursor:pointer;
+  box-shadow: 0 6px 24px var(--accent-glow); z-index:300;
+  display:flex; align-items:center; justify-content:center;
+  transition: all 0.3s ease
+}
+.vfab:hover { transform:scale(1.08) }
+.vfab.listening { animation:fabPulse 1.5s ease-in-out infinite }
+@keyframes fabPulse {
+  0%,100% { box-shadow:0 6px 24px var(--accent-glow) }
+  50% { box-shadow:0 0 0 14px rgba(232,35,42,0.08), 0 6px 24px var(--accent-glow) }
+}
+
+/* ── SPEAKER INDICATOR ─────────────────────────────────── */
+.speaker-bar {
+  position:fixed; top:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px; z-index:600;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  color:#fff; padding:10px 16px; display:none;
+  align-items:center; gap:10px; font-size:13px; font-weight:600
+}
+.speaker-bar.show { display:flex }
+.speaker-waves { display:flex; align-items:center; gap:2px; height:18px }
+.speaker-wave { width:3px; background:#fff; border-radius:2px; animation:wave 0.6s ease-in-out infinite }
+.speaker-wave:nth-child(1) { height:6px; animation-delay:0s }
+.speaker-wave:nth-child(2) { height:12px; animation-delay:0.1s }
+.speaker-wave:nth-child(3) { height:18px; animation-delay:0.2s }
+.speaker-wave:nth-child(4) { height:12px; animation-delay:0.3s }
+.speaker-wave:nth-child(5) { height:6px; animation-delay:0.4s }
+@keyframes wave {
+  0%,100% { transform:scaleY(0.4) }
+  50% { transform:scaleY(1) }
+}
+.speaker-stop { background:rgba(255,255,255,0.2); border:none; color:#fff; padding:4px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; margin-left:auto }
+
+/* ── TOAST ──────────────────────────────────────────────── */
+.toast {
+  position:fixed; bottom:84px; left:50%; transform:translateX(-50%) translateY(20px);
+  background: var(--surface-solid); color:var(--text); padding:12px 20px; border-radius:16px;
+  font-size:13px; font-weight:600; z-index:999; opacity:0; transition:all 0.4s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: var(--shadow-float); border:1px solid var(--glass-border-hi);
+  display:flex; align-items:center; gap:8px; max-width:90vw
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0) }
+
+/* ── EMPTY STATE ───────────────────────────────────────── */
+.empty-state { text-align:center; padding:48px 24px; color:var(--sub) }
+.empty-state .es-icon { font-size:48px; margin-bottom:12px; opacity:0.5 }
+.empty-state .es-title { font-family:'Outfit',sans-serif; font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px }
+.empty-state .es-sub { font-size:13px; line-height:1.5 }
+
+@media (max-width: 420px) {
+  .hdr-top { align-items:flex-start; gap:10px; flex-direction:column }
+  .hbts { width:100%; justify-content:space-between }
+  .lang-sel { flex:1 }
+  .nfoot { align-items:flex-start; flex-direction:column; gap:10px }
+  .nacts { width:100%; flex-wrap:wrap }
+}
+</style>
+</head>
+<body>
+
+<!-- SPEAKER BAR (TTS indicator) -->
+<div class="speaker-bar" id="speakerBar">
+  <div class="speaker-waves">
+    <div class="speaker-wave"></div><div class="speaker-wave"></div><div class="speaker-wave"></div><div class="speaker-wave"></div><div class="speaker-wave"></div>
+  </div>
+  <span id="speakerLabel">NexBrief is reading...</span>
+  <button class="speaker-stop" id="speakerStop">■ Stop</button>
+</div>
+
+<!-- HEADER -->
+<header class="hdr" id="mainHeader">
+  <div class="hdr-top">
+    <div class="logo">Nex<span>Brief</span><div class="logo-dot"></div></div>
+    <div class="hbts">
+      <select class="lang-sel" id="langSel">
+        <option value="en">English</option>
+        <option value="te">తెలుగు</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ta">தமிழ்</option>
+        <option value="ml">മലയാളം</option>
+        <option value="mr">मराठी</option>
+        <option value="bn">বাংলা</option>
+        <option value="gu">ગુજરાતી</option>
+        <option value="kn">ಕನ್ನಡ</option>
+        <option value="pa">ਪੰਜਾਬੀ</option>
+      </select>
+      <button class="hbt" id="darkBtn" title="Toggle theme">🌙</button>
+      <button class="hbt" id="refreshBtn" title="Refresh">🔄</button>
+    </div>
+  </div>
+  <div class="cats" id="catsBar"></div>
+</header>
+
+<!-- BREAKING NEWS -->
+<div class="brk">
+  <span class="brk-badge">Live</span>
+  <div class="brk-scroll"><span class="brk-txt" id="brkTxt">Launching NexBrief AI engine... Scanning your local coordinates...</span></div>
+</div>
+
+<!-- ═══════════ HOME PAGE ═══════════ -->
+<div class="pg active" id="pg-home">
+  <div class="wbox">
+    <div class="wl">
+      <span class="wcity" id="wCity">Detecting...</span>
+      <span class="wtemp" id="wTemp">--°C</span>
+      <span class="wdesc" id="wDesc">Scanning</span>
+    </div>
+    <div class="wicon" id="wIcon">🌫️</div>
+  </div>
+  
+  <div class="sbox">
+    <input type="text" id="searchInput" placeholder="Search global news..." onkeydown="if(event.key==='Enter') execSearch()">
+    <button class="sbox-btn liquid-btn" onclick="execSearch()"><span>🔍</span></button>
+  </div>
+
+  <div class="stitle" id="feedTitle" style="display:flex; justify-content:space-between; align-items:center">
+    <span>📍 Home & Top Stories</span>
+    <button id="clearSearch" onclick="clearSearch()" style="display:none; background:none; border:none; color:var(--accent); font-size:11px; font-weight:700; cursor:pointer">CLEAR Results</button>
+  </div>
+  <div class="feed" id="homeFeed"></div>
+  <div class="scroll-loader" id="scrollLoader" style="display:none">
+    <span class="scroll-spinner"></span> Loading more stories...
+  </div>
+</div>
+
+<!-- ═══════════ TRENDING PAGE ═══════════ -->
+<div class="pg" id="pg-trending">
+  <div class="stitle">🔥 Trending Now</div>
+  <div class="feed" id="trendFeed"></div>
+</div>
+
+<!-- ═══════════ ARCHIVE PAGE ═══════════ -->
+<div class="pg" id="pg-bookmarks">
+  <div class="stitle">🔖 Your Archive</div>
+  <div class="feed" id="bmFeed"></div>
+</div>
+
+<!-- ═══════════ AI STUDIO PAGE ═══════════ -->
+<div class="pg" id="pg-ai">
+  <div class="aipg">
+    <!-- Tab switcher -->
+    <div class="studio-tabs">
+      <button class="studio-tab active" id="stab-brief" onclick="switchStudioTab('brief')">✨ AI Brief</button>
+      <button class="studio-tab" id="stab-video" onclick="switchStudioTab('video')">🎬 Video Studio</button>
+    </div>
+
+    <!-- AI Brief Panel -->
+    <div class="studio-panel active" id="spanel-brief">
+      <div class="ai-card">
+        <div class="ai-h">✨ AI Brief</div>
+        <p class="ai-s">Paste any article — get a crisp 3‑line summary instantly.</p>
+        <textarea class="ai-ta" id="aiTA" placeholder="Paste article text here..."></textarea>
+        <button class="ai-btn liquid-btn" id="aiBtn"><span>✨ Summarize</span></button>
+        <div class="aibox" id="aiBox">
+          <div class="aibox-lbl">AI Summary</div>
+          <div class="aibox-txt" id="aiTxt"></div>
+          <div class="ai-actions">
+            <button class="ai-act-btn" id="aiSpeak">🔊 Listen</button>
+            <button class="ai-act-btn" id="aiCopy">📋 Copy</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Studio Panel -->
+    <div class="studio-panel" id="spanel-video">
+      <div class="ai-card">
+        <div class="ai-h">🎬 AI Video Studio</div>
+        <p class="ai-s">Enter a news topic — NexBrief generates a visual news reel with animated text, relevant imagery, and narration.</p>
+        <textarea class="ai-ta" id="vidTA" placeholder="Enter a news topic. Example: &quot;Impact of AI on global economies&quot;"></textarea>
+        <button class="ai-btn liquid-btn" id="vidGenBtn"><span>🎬 Generate News Reel</span></button>
+        <div class="vid-preview" id="vidPreview">
+          <div style="position:absolute;inset:0;overflow:hidden;z-index:1;background:#111;">
+            <img id="vidBgImg" src="" style="width:100%;height:100%;object-fit:cover;transform-origin:center;opacity:0.8;transition:transform 0.1s linear;">
+          </div>
+          <canvas class="vid-canvas" id="vidCanvas" width="440" height="248" style="position:relative;z-index:10;background:transparent;"></canvas>
+          <div class="vid-controls" style="z-index:20;">
+            <button class="vid-ctrl-btn" id="vidPlayBtn">▶</button>
+            <div class="vid-progress"><div class="vid-progress-bar" id="vidProgressBar"></div></div>
+            <span class="vid-time" id="vidTime">0:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BOTTOM NAV ═══════════ -->
+<nav class="bnav">
+  <button class="nvi active" data-page="home"><span class="nvi-icon">🏠</span>Home<span class="nvi-dot"></span></button>
+  <button class="nvi" data-page="trending"><span class="nvi-icon">🔥</span>Trending<span class="nvi-dot"></span></button>
+  <button class="nvi nvi-mic" onclick="startVoice()"><span class="nvi-icon">🎙️</span></button>
+  <button class="nvi" data-page="bookmarks"><span class="nvi-icon">🔖</span>Archive<span class="nvi-dot"></span></button>
+  <button class="nvi" data-page="ai" onclick="switchStudioTab('brief')"><span class="nvi-icon">✨</span>Studio<span class="nvi-dot"></span></button>
+</nav>
+
+<!-- Voice FAB removed - now in bottom nav -->
+
+<!-- VOICE MODAL -->
+<div class="ovl" id="vOvl">
+  <div class="vmodal">
+    <div class="vorb-wrap">
+      <div class="vorb" id="vOrb"></div>
+      <div class="vorb-ring" id="vRing"></div>
+      <div class="vorb-icon">🎙️</div>
+    </div>
+    <div class="vstatus" id="vStatus">Tap to speak</div>
+    <div class="vtranscript" id="vTranscript">Say a command...</div>
+    <div class="vcmds">
+      <span class="vcmd">"Read news"</span>
+      <span class="vcmd">"Show sports"</span>
+      <span class="vcmd">"Trending"</span>
+      <span class="vcmd">"Dark mode"</span>
+      <span class="vcmd">"Read top story"</span>
+      <span class="vcmd">"Studio"</span>
+    </div>
+    <button class="vclose-btn" id="vClose">Dismiss</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+//  NEXBRIEF NEWS — ENGINE v2.0
+// ══════════════════════════════════════════════════════════
+
+// ── STATE ──────────────────────────────────────────────────
+const CATS = ['All','News','Tech','Sports','Finance','Health','World','Education','Film'];
+const CAT_IMAGES = {
+  Tech: ['technology,computer','artificial+intelligence','coding,laptop','startup,silicon+valley','robotics','cybersecurity','smartphone','virtual+reality'],
+  Sports: ['football,stadium','cricket,sport','basketball,nba','tennis,athlete','soccer,goal','marathon,running','swimming,olympic','fitness,gym'],
+  Finance: ['stock+market,trading','bank,finance','bitcoin,cryptocurrency','economy,growth','wall+street','business,corporate','investment,money','fintech'],
+  Health: ['healthcare,medical','yoga,wellness','healthy+food','doctor,hospital','mental+health','vaccine,research','fitness','meditation'],
+  World: ['global,earth','cityscape,world','united+nations','travel,landmark','diplomacy','culture,heritage','refugee','parliament'],
+  News: ['newspaper,press','breaking+news','journalist','protest,rally','election','government','court,justice','city,urban'],
+  Life: ['lifestyle,modern','food,gourmet','travel,adventure','fashion,style','music,concert','nature,beautiful','family,happy','wellness'],
+  Education: ['university,campus','students,classroom','graduation,degree','books,learning','teacher,school','library,study','e-learning,online','research,innovation'],
+  Film: ['bollywood,cinema','movie,premiere','actor,actress','film+festival','director,clapper','red+carpet','blockbuster','streaming,entertainment']
+};
+const EMOJI = {News:'📰',Tech:'💻',Sports:'⚽',Finance:'💹',Health:'🏥',World:'🌍',Life:'🧘',Education:'🎓',Film:'🎬',All:'🗞️'};
+const VOICE_LANG_MAP = {
+  en: 'en-US',
+  te: 'te-IN',
+  hi: 'hi-IN',
+  ta: 'ta-IN',
+  ml: 'ml-IN',
+  mr: 'mr-IN',
+  bn: 'bn-IN',
+  gu: 'gu-IN',
+  kn: 'kn-IN',
+  pa: 'pa-IN'
+};
+
+let newsData = [];
+let bookmarks = JSON.parse(localStorage.getItem('nb_bookmarks') || '[]');
+let currentCat = 'All';
+let currentLang = localStorage.getItem('nb_lang') || 'en';
+let isDark = localStorage.getItem('nb_theme') !== 'light';
+let userLocation = "Your Area";
+let userLat = null, userLon = null;
+let recognition = null;
+let voiceBadge = null;
+let isListening = false;
+let isLoadingMore = false;
+let newsPage = 0;
+let isSpeaking = false;
+
+// ── GNEWS CONFIG ───────────────────────────────────────────
+const GNEWS_KEY = '31854bc64cbdfbf99050fb2876fa1ca5';
+const GNEWS_MAP = {
+  All: 'general',
+  News: 'general',
+  Tech: 'technology',
+  Sports: 'sports',
+  Finance: 'business',
+  Health: 'health',
+  World: 'world',
+  Education: 'general',
+  Film: 'entertainment'
+};
+
+async function fetchGNews(cat, page = 0) {
+  const category = GNEWS_MAP[cat] || 'general';
+  const url = `https://gnews.io/api/v4/top-headlines?category=${category}&lang=${currentLang}&max=10&token=${GNEWS_KEY}`;
+  
+  try {
+    const res = await fetch(url);
+    if (res.status === 429) { 
+        console.warn("Rate limit hit, falling back to local DB");
+        return generateBatch(cat, 0); // Normalized fallback
+    }
+    if (!res.ok) throw new Error('API Error');
+    const data = await res.json();
+    if (!data.articles) throw new Error('No articles');
+    
+    return data.articles.map((a, i) => {
+      const pubDate = new Date(a.publishedAt);
+      const diffMs = new Date() - pubDate;
+      const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
+      const timeStr = diffHrs <= 0 ? (Math.floor(diffMs / (1000 * 60)) + 'm ago') : (diffHrs + 'h ago');
+      
+      return {
+        title: a.title,
+        category: cat === 'All' ? 'Breaking' : cat,
+        summary: a.description || a.content.substring(0, 150) + '...',
+        time: timeStr,
+        image: a.image,
+        url: a.url,
+        source: a.source.name,
+        hot: i < 2,
+        mode: 'live'
+      };
+    });
+  } catch (e) {
+    console.warn('GNews Fetch Failed:', e.message);
+    return generateBatch(cat, 0); // Normalized fallback
+  }
+}
+
+async function searchGNews(q) {
+  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=${currentLang}&max=10&token=${GNEWS_KEY}`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('API Error');
+    const data = await res.json();
+    return data.articles.map(a => ({
+      title: a.title,
+      category: 'Search',
+      summary: a.description || a.content.substring(0, 150) + '...',
+      time: 'Matching',
+      image: a.image,
+      url: a.url,
+      source: a.source.name,
+      hot: false,
+      mode: 'live'
+    }));
+  } catch (e) {
+    console.warn('Search Failed:', e);
+    return null;
+  }
+}
+
+function execSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+  const feed = document.getElementById('homeFeed');
+  document.getElementById('feedTitle').querySelector('span').textContent = `🔍 Results for "${q}"`;
+  document.getElementById('clearSearch').style.display = 'block';
+  feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--sub)"><span class="scroll-spinner"></span> Searching universe...</div>';
+  
+  searchGNews(q).then(results => {
+    feed.innerHTML = '';
+    if (results && results.length) {
+      newsData = results;
+      renderCards(results, feed);
+    } else {
+      feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--sub)">No matching stories found. Check your spelling?</div>';
+    }
+  });
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('feedTitle').querySelector('span').textContent = `📍 Home & Top Stories`;
+  document.getElementById('clearSearch').style.display = 'none';
+  loadNews(currentCat);
+}
+
+// ── MASSIVE NEWS DATABASE ──────────────────────────────────
+const NEWS_DB = {
+  Tech: [
+    {title:"Holographic Displays Enter Mass Production at Samsung",summary:"Paper-thin 3D screens that require no glasses hit factory lines, with first consumer products expected by holiday season at under $800."},
+    {title:"Autonomous Drone Delivery Network Covers 50 Cities Globally",summary:"Wing and Zipline expand operations with 30-minute delivery windows for medical supplies, groceries, and electronics across three continents."},
+    {title:"Blockchain Voting System Adopted by 12 Countries for Elections",summary:"Decentralized, tamper-proof digital voting sees widespread adoption after successful pilots, though privacy advocates raise surveillance concerns."},
+    {title:"SpaceX Starship Completes First Commercial Mars Cargo Mission",summary:"Two tonnes of scientific equipment successfully land on Mars surface, marking humanity's first commercial interplanetary freight delivery."},
+    {title:"New Programming Language 'Flux' Gains Massive Developer Adoption",summary:"Designed for AI-native development, Flux combines natural language instructions with traditional code, reducing development time by 60%."},
+  ],
+  Sports: [
+    {title:"India Clinches Historic Cricket World Cup in Dramatic Super Over",summary:"Jasprit Bumrah's incredible final over seals India's third ODI World Cup title as billions celebrate across the subcontinent."},
+    {title:"Lionel Messi Announces Retirement After Record 9th Ballon d'Or",summary:"The Argentine legend bids farewell to competitive football at 39, leaving behind unmatched records of 850+ career goals."},
+    {title:"Olympics 2028 Los Angeles: India Targets 25 Medal Haul",summary:"With record investment in sports infrastructure and training, Indian athletes prepare for their most ambitious Olympic campaign ever."},
+    {title:"Formula 1 Introduces Sustainable Hydrogen-Powered Cars for 2027",summary:"The racing world goes green as teams unveil hydrogen prototypes that maintain the thrilling speeds fans expect."},
+    {title:"NBA Expansion: Two New Teams Announced in Mexico City and Seattle",summary:"The league grows to 32 teams, with inaugural seasons set for 2027-28, marking NBA's first franchise outside the US."},
+    {title:"Virat Kohli's Academy Produces Three International Cricketers",summary:"The batting legend's grassroots program in Delhi shows results as graduates earn national selection across formats."},
+    {title:"Women's Premier League Breaks All Viewership Records",summary:"The WPL final attracts 380 million viewers globally, surpassing men's IPL viewership for the first time in history."},
+    {title:"Usain Bolt's Record Finally Broken by 19-Year-Old Prodigy",summary:"Nigerian sprinter clocks 9.52 seconds in the 100m at Diamond League, shattering a record that stood for 17 years."},
+  ],
+  Finance: [
+    {title:"RBI Holds Interest Rate Steady at 6.25% Amid Growth Optimism",summary:"India's central bank maintains accommodation as GDP growth forecasts rise to 7.2%, while inflation stays within target range."},
+    {title:"Bitcoin Surges Past $150,000 on Institutional ETF Inflows",summary:"Major pension funds allocate 5% of portfolios to cryptocurrency, driving prices to all-time highs and mainstream acceptance."},
+    {title:"India's GDP Crosses $5 Trillion, Becomes World's 4th Largest Economy",summary:"Structural reforms, digital infrastructure, and manufacturing expansion propel India past Germany in nominal GDP rankings."},
+    {title:"Global AI Chip Market Hits $200 Billion Valuation",summary:"NVIDIA, AMD, and emerging startups compete fiercely as demand for specialized AI processors outstrips supply for the third consecutive year."},
+    {title:"UPI Transactions Cross 25 Billion Monthly Mark",summary:"India's digital payment revolution shows no signs of slowing as rural adoption doubles and cross-border UPI launches in 15 countries."},
+    {title:"Green Bonds Market Explodes to $3 Trillion Amid Climate Push",summary:"Investors increasingly favor sustainable debt instruments as ESG mandates tighten across major economies."},
+    {title:"Stock Market Reaches All-Time High as Sensex Breaches 95,000",summary:"Foreign institutional investors pour record capital into Indian equities, driven by strong corporate earnings and demographic dividends."},
+    {title:"Central Banks Explore Digital Currencies as Cash Usage Plummets",summary:"Over 80 countries now pilot CBDCs, with India's Digital Rupee seeing 50 million active users within its first year."},
+  ],
+  Health: [
+    {title:"Universal Flu Vaccine Shows 95% Efficacy in Global Trial",summary:"A single-dose vaccine targeting all influenza strains could eliminate seasonal flu, potentially saving 500,000 lives annually worldwide."},
+    {title:"AI Detects Cancer 5 Years Before Symptoms with 94% Accuracy",summary:"Deep learning models analyzing routine blood tests identify microscopic cancer biomarkers, revolutionizing early detection and treatment."},
+    {title:"India Eliminates Tuberculosis from Major Urban Centers",summary:"Aggressive screening, treatment programs, and AI-powered diagnostics help India achieve a historic public health milestone."},
+    {title:"Brain-Age Reversal Drug Enters Phase 3 Clinical Trials",summary:"A compound that restores neural plasticity shows promising results in Alzheimer's patients, potentially reversing cognitive decline by up to 10 years."},
+    {title:"Mental Health App Prescriptions Surpass Traditional Therapy Referrals",summary:"Digital therapeutics gain medical credibility as clinical studies prove app-based CBT is as effective as in-person sessions for anxiety."},
+    {title:"3D-Printed Organs Successfully Transplanted in 100 Patients",summary:"Bioprinting technology eliminates organ donor waitlists for kidneys and livers, with heart transplants expected within two years."},
+    {title:"Microbiome Therapy Cures Chronic Autoimmune Conditions",summary:"Personalized gut bacteria transplants show remarkable results in treating Crohn's disease, rheumatoid arthritis, and type 1 diabetes."},
+    {title:"WHO Declares End of Malaria in Southeast Asia",summary:"Decades of mosquito net distribution, gene-drive technology, and vaccine campaigns eliminate malaria from the region."},
+  ],
+  World: [
+    {title:"G20 Summit Agrees on Global AI Governance Framework",summary:"World leaders establish binding rules for AI development, including mandatory safety testing and transparency requirements for frontier models."},
+    {title:"Mars Colony Blueprint Approved by International Space Consortium",summary:"A 20-nation agreement outlines the roadmap for permanent human settlement on Mars by 2040, with shared costs and governance."},
+    {title:"Global Plastic Treaty Signed by 190 Nations at UN Assembly",summary:"The landmark agreement mandates 80% reduction in single-use plastics by 2035, with binding penalties for non-compliance."},
+    {title:"EU Launches Digital Euro for Cross-Border Transactions",summary:"The European Central Bank's digital currency goes live, enabling instant, fee-free payments across all 27 member states."},
+    {title:"Africa's Continental Free Trade Area Creates World's Largest Market",summary:"With 1.4 billion consumers, the AfCFTA reaches full implementation, projected to boost intra-African trade by $450 billion."},
+    {title:"Arctic Ice Sheet Stabilizes After Decade of Geoengineering Efforts",summary:"Cloud-brightening and reflective particle projects show measurable results in slowing polar ice melt for the first time."},
+    {title:"Japan's Population Stabilizes After Revolutionary Childcare Reforms",summary:"Universal free childcare, housing subsidies, and flexible work mandates halt the demographic decline that threatened economic collapse."},
+    {title:"Global Refugee Resettlement Program Achieves 10 Million Target",summary:"UN-coordinated effort successfully relocates displaced populations with education and employment integration in host nations."},
+  ],
+  News: [
+    {title:"Supreme Court Upholds Right to Privacy in Digital Age Ruling",summary:"A landmark 7-0 decision establishes strict limits on government surveillance and corporate data collection from citizens."},
+    {title:"National Education Policy Implementation Shows Dramatic Results",summary:"Student outcomes improve by 35% in states that fully adopted the new curriculum framework emphasizing critical thinking and digital literacy."},
+    {title:"Electric Vehicle Sales Surpass Petrol Cars for First Time",summary:"The tipping point arrives as EV prices drop below ICE vehicles, with charging infrastructure now covering 95% of national highways."},
+    {title:"Chandrayaan-4 Successfully Returns Lunar Samples to Earth",summary:"ISRO achieves its most complex mission yet, bringing back 2kg of regolith from the Moon's south pole for scientific analysis."},
+    {title:"National Green Hydrogen Mission Creates 500,000 New Jobs",summary:"India's push to become a green hydrogen hub generates massive employment across manufacturing, research, and infrastructure."},
+    {title:"Smart City Mission Phase 3 Transforms 200 Urban Centers",summary:"AI-powered traffic management, waste processing, and citizen services redefine urban living across tier-2 and tier-3 cities."},
+    {title:"High-Speed Rail Network Connects Mumbai to Delhi in 6 Hours",summary:"The bullet train corridor opens ahead of schedule, reducing travel time by 70% and creating a new economic growth axis."},
+    {title:"Indian Space Startups Raise $2 Billion in Record Funding Year",summary:"Over 40 space-tech companies attract global investment, positioning India as the world's most dynamic space entrepreneurship ecosystem."},
+  ],
+  Education: [
+    {title:"IITs Rank Among Top 50 Global Universities for First Time",summary:"India's premier engineering institutes break into the global top 50, with IIT Bombay leading at #38 in the QS World Rankings.",imgHint:"university,iit,campus",url:"#"},
+    {title:"NEP 2.0 Introduces AI and Coding From Class 1",summary:"The updated National Education Policy mandates computational thinking from primary school and introduces AI labs in 50,000 government schools.",imgHint:"education,coding,children",url:"#"},
+    {title:"India's School Dropout Rate Falls to All-Time Low of 3.2%",summary:"A combination of mid-day meal expansion, free uniforms, and digital attendance monitoring drives historic retention across all states.",imgHint:"school,students,learning",url:"#"},
+    {title:"CUET Reforms Simplify College Admissions for 1.5 Million Students",summary:"Revised Common University Entrance Test drops multiple-choice dependency and introduces skill-based assessments, reducing coaching dependence.",imgHint:"exam,students,college",url:"#"},
+    {title:"EdTech Platforms Reach 200 Million Learners Across Rural India",summary:"BYJU'S, Unacademy and newer vernacular-first apps collectively cross 200M active users, closing the urban-rural education divide.",imgHint:"edtech,online,learning",url:"#"},
+    {title:"Scholarship Program Sends 10,000 Indians to Top Global Universities",summary:"PM's Global Study Initiative funds full scholarships to Ivy League, Oxford, and other elite institutions for meritorious students from low-income families.",imgHint:"scholarship,graduation,international",url:"#"},
+    {title:"Vocational Training Reforms Create 5 Million Skilled Workers",summary:"Industry-aligned ITI curriculum overhaul with live factory training produces job-ready graduates months before competing programs.",imgHint:"vocational,skill,workshop",url:"#"},
+    {title:"National Digital University Launches 500 Free Online Degree Programs",summary:"India's first fully online public university offers accredited bachelor's and master's degrees at zero cost, with professors from top institutions.",imgHint:"online,degree,digital",url:"#"},
+  ],
+  Film: [
+    {title:"Kalki 2898 AD Becomes India's Highest-Grossing Film Worldwide",summary:"Prabhas and Deepika Padukone's sci-fi epic crosses ₹1,800 crore at the global box office, redefining Indian cinema's international ambitions.",imgHint:"bollywood,movie,sci-fi",url:"#"},
+    {title:"Cannes Film Festival Awards Palme d'Or to Indian Documentary",summary:"A powerful documentary on rural water scarcity becomes the first Indian non-fiction film to win cinema's top honour at Cannes.",imgHint:"cannes,film+festival,award",url:"#"},
+    {title:"OTT Platforms Invest ₹15,000 Crore in Original Indian Content",summary:"Netflix, Amazon Prime, and JioCinema announce record investments in Hindi, Tamil, Telugu, and regional language original series for 2026.",imgHint:"streaming,ott,entertainment",url:"#"},
+    {title:"AR Rahman Wins Second Oscar for Bollywood Crossover Film Score",summary:"The legendary composer takes home Best Original Score at the 98th Academy Awards for his genre-defying soundtrack on a global co-production.",imgHint:"oscar,music,award,film",url:"#"},
+    {title:"South Indian Cinema Dominates National Awards for Third Year",summary:"Malayalam and Tamil films sweep 14 of 20 major categories at the National Film Awards, underscoring their creative dominance.",imgHint:"cinema,award,indian+film",url:"#"},
+    {title:"Deepfake Acting Law Passed to Protect Bollywood Stars",summary:"New legislation makes unauthorised AI-generated likeness of actors in films or ads a criminal offence, with fines up to ₹10 crore.",imgHint:"actor,law,ai,bollywood",url:"#"},
+    {title:"India Opens Its Largest Film Studio Complex in Hyderabad",summary:"The 130-acre Ramoji Film City rival is inaugurated with 22 sound stages, underwater sets, and an AI-powered virtual production facility.",imgHint:"film+studio,hyderabad,production",url:"#"},
+    {title:"Rajamouli Announces Pan-Indian Magnum Opus with ₹800 Crore Budget",summary:"The RRR director's next project sets a new benchmark for Indian cinema with a 4-year production timeline and a global theatrical release plan.",imgHint:"director,movie,epic,cinema",url:"#"},
+  ]
+};
+
+// ── INIT ───────────────────────────────────────────────────
+window.onload = function() {
+  buildCats();
+  setupNav();
+  setupButtons();
+  setupVoice();
+  setupAI();
+  setupVideoStudio();
+  setupInfiniteScroll();
+  setupSpeakerBar();
+  initLocation();
+};
+
+// ── LOCATION ──────────────────────────────────────────────
+function initLocation() {
+  fallbackInit();
+
+  const handleApproximateLocation = () => {
+    fetch('https://ipwho.is/')
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success || typeof d.latitude !== 'number' || typeof d.longitude !== 'number') {
+          throw new Error('IP lookup failed');
+        }
+        userLat = d.latitude;
+        userLon = d.longitude;
+        userLocation = d.city || d.region || d.country || 'Your Area';
+        toast(`📍 Weather set for ${userLocation}`);
+        loadWeather();
+        loadNews('All');
+      })
+      .catch(() => {
+        userLocation = "Global";
+        loadWeather();
+        loadNews('All');
+        toast("📍 Using global feed");
+      });
+  };
+
+  if (!navigator.geolocation) {
+    handleApproximateLocation();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLon = pos.coords.longitude;
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLat}&lon=${userLon}`)
+      .then(r => r.json())
+      .then(d => {
+        userLocation = d.address.city || d.address.town || d.address.county || d.address.state || "Your Area";
+        toast(`📍 Optimized for ${userLocation}`);
+        loadWeather();
+        loadNews('All');
+      })
+      .catch(() => {
+        userLocation = "Your Area";
+        loadWeather();
+        loadNews('All');
+      });
+  }, () => {
+    handleApproximateLocation();
+  }, { timeout: 5000, enableHighAccuracy: true, maximumAge: 300000 });
+}
+function fallbackInit() {
+  document.getElementById('wCity').textContent = 'Detecting...';
+  document.getElementById('wTemp').textContent = '--°C';
+  document.getElementById('wDesc').textContent = 'Finding local weather';
+  document.getElementById('wIcon').textContent = '📍';
+}
+
+// ── CATEGORIES ─────────────────────────────────────────────
+function buildCats() {
+  const bar = document.getElementById('catsBar');
+  CATS.forEach(cat => {
+    const b = document.createElement('button');
+    b.className = 'cbt' + (cat === 'All' ? ' active' : '');
+    b.textContent = `${EMOJI[cat] || '•'} ${cat}`;
+    b.onclick = () => {
+      currentCat = cat; newsPage = 0;
+      bar.querySelectorAll('.cbt').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      loadNews(cat);
+    };
+    bar.appendChild(b);
+  });
+}
+
+// ── NAV ───────────────────────────────────────────────────
+function setupNav() {
+  document.querySelectorAll('.nvi[data-page]').forEach(btn => {
+    btn.onclick = () => {
+      showPage(btn.dataset.page);
+      setActiveNav(btn.dataset.page);
+      if (btn.dataset.page === 'ai') switchStudioTab('brief');
+    };
+  });
+}
+function showPage(p) {
+  const page = document.getElementById('pg-' + p);
+  if (!page) return;
+  document.querySelectorAll('.pg').forEach(x => x.classList.remove('active'));
+  page.classList.add('active');
+  if (p === 'bookmarks') renderBookmarks();
+  if (p === 'trending') loadTrending();
+}
+
+// ── BUTTONS ───────────────────────────────────────────────
+function setupButtons() {
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('darkBtn').textContent = isDark ? '🌙' : '☀️';
+  document.getElementById('langSel').value = currentLang;
+  document.getElementById('darkBtn').onclick = toggleDark;
+  document.getElementById('refreshBtn').onclick = () => { toast("🔄 Refreshing..."); newsPage = 0; loadNews(currentCat); };
+  document.getElementById('vClose').onclick = stopVoice;
+  document.getElementById('langSel').onchange = (e) => {
+    currentLang = e.target.value;
+    localStorage.setItem('nb_lang', currentLang);
+    if (recognition) recognition.lang = VOICE_LANG_MAP[currentLang] || 'en-US';
+    toast("🌐 Language updated");
+    newsPage = 0;
+    if (document.getElementById('searchInput') && document.getElementById('searchInput').value) {
+       execSearch();
+    } else {
+       loadNews(currentCat);
+    }
+  };
+}
+function toggleDark() {
+  isDark = !isDark;
+  document.body.classList.toggle('light', !isDark);
+  document.getElementById('darkBtn').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('nb_theme', isDark ? 'dark' : 'light');
+}
+
+// ── WEATHER ───────────────────────────────────────────────
+function loadWeather() {
+  const WICO = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',61:'🌧️',71:'❄️',80:'🌦️',95:'⛈️'};
+  const lat = userLat || 13.08, lon = userLon || 80.27;
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+    .then(r => r.json())
+    .then(d => {
+      const cw = d.current_weather;
+      document.getElementById('wCity').textContent = userLocation;
+      document.getElementById('wTemp').textContent = Math.round(cw.temperature) + '°C';
+      document.getElementById('wDesc').textContent = 'Wind ' + Math.round(cw.windspeed) + ' km/h';
+      document.getElementById('wIcon').textContent = WICO[cw.weathercode] || '🌤️';
+    }).catch(() => { document.getElementById('wCity').textContent = 'Offline'; });
+}
+
+// ── TOPIC-BASED IMAGE ENGINE ──────────────────────────────
+// Extracts keywords from article title to fetch relevant images
+const STOP_WORDS = new Set(['the','a','an','in','on','at','to','for','of','with','by','from','is','are','was','were','and','or','but','not','its','it','has','have','had','be','been','being','that','this','which','who','whom','new','now','how','all','over','after','into','no','up','out','if','as']);
+
+function extractKeywords(title) {
+  const words = title.replace(/[\[\](){}"'.,!?:;–—]/g, '').split(/\s+/)
+    .filter(w => w.length > 3 && !STOP_WORDS.has(w.toLowerCase()));
+  
+  // Pick a mix of some early words and some later words for better context
+  if (words.length <= 3) return words.join(',').toLowerCase();
+  return [words[0], words[1], words[words.length - 1]].join(',').toLowerCase();
+}
+
+function getImageUrl(title, category, index, hint) {
+  const keywords = hint || extractKeywords(title);
+  const catPrefix = category && category !== 'All' ? category.toLowerCase() + ',' : '';
+  const query = catPrefix + keywords;
+  
+  let hash = 0;
+  for (let i = 0; i < title.length; i++) {
+    hash = ((hash << 5) - hash) + title.charCodeAt(i);
+    hash |= 0;
+  }
+  const uniqueLock = Math.abs(hash) + (index || 0);
+  
+  // Use a different provider or better parameters to avoid generic placeholders
+  return `https://loremflickr.com/640/360/${encodeURIComponent(query)}?lock=${uniqueLock}`;
+}
+
+function renderCards(data, container) {
+  data.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'ncard';
+    card.style.animationDelay = (idx * 0.1) + 's';
+    card.tabIndex = 0;
+    
+    const isSaved = bookmarks.some(b => b.title === item.title);
+    const imgUrl = item.image || getImageUrl(item.title, item.category, item.imgIndex || idx, item.imgHint);
+    const sourceLabel = item.source ? `<span class="nsource">${esc(item.source)}</span>` : '';
+    const safeCategory = esc(item.category);
+    const safeTitle = esc(item.title);
+    const safeSummary = esc(item.summary);
+
+    card.innerHTML = `
+      <div class="ncard-img">
+        <img src="${imgUrl}" alt="news cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=640&q=80'">
+        <div class="img-overlay"></div>
+        <div class="img-badge">Open Article ↗</div>
+      </div>
+      <div class="ncard-body">
+        <div class="ntag-row">
+          <span class="ntag">${safeCategory}</span>
+          ${item.hot ? '<span class="ntag hot">🔥 Trending</span>' : ''}
+        </div>
+        <h3 class="ntitle">${safeTitle}</h3>
+        <div class="nmeta">
+          ${sourceLabel}
+          <span class="ntime">🕒 ${esc(item.time)}</span>
+        </div>
+        <p class="nshort">${safeSummary}</p>
+        <div class="nfoot">
+          <span class="nsource">${item.mode === 'live' ? 'Live source' : 'Demo fallback'}</span>
+          <div class="nacts">
+            <button class="nact act-studio" title="AI Brief: Summarize">✨</button>
+            <button class="nact act-video" title="AI Video Studio">🎬</button>
+            <button class="nact act-save ${isSaved ? 'saved' : ''}" title="Save">🔖</button>
+            <button class="nact act-read liquid-btn"><span>READ FULL</span></button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    card.querySelector('.act-save').onclick = (e) => { e.stopPropagation(); toggleBookmark(item, e.currentTarget); };
+    card.querySelector('.act-studio').onclick = (e) => { e.stopPropagation(); summarizeInStudio(item); };
+    card.querySelector('.act-video').onclick = (e) => { e.stopPropagation(); openVideoStudio(item); };
+    card.querySelector('.act-read').onclick = (e) => { 
+      e.stopPropagation(); 
+      if (item.url && item.url !== '#') window.open(item.url, '_blank');
+      else toast('🌐 Demo mode: Full article offline');
+    };
+    card.onclick = () => {
+      if (item.url && item.url !== '#') window.open(item.url, '_blank');
+      else toast('🌐 Demo mode: Full article offline');
+    };
+    card.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        card.click();
+      }
+    };
+    container.appendChild(card);
+  });
+}
+
+function switchStudioTab(tab) {
+  document.querySelectorAll('.studio-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.studio-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('stab-' + tab).classList.add('active');
+  document.getElementById('spanel-' + tab).classList.add('active');
+}
+
+function summarizeInStudio(item) {
+  showPage('ai');
+  setActiveNav('ai');
+  switchStudioTab('brief');
+  const aiTA = document.getElementById('aiTA');
+  if (aiTA) {
+    aiTA.value = item.title + "\n\n" + item.summary;
+    toast("✨ Redirecting to AI Studio...");
+    setTimeout(() => {
+      document.getElementById('aiBtn').click();
+    }, 350);
+  }
+}
+
+function openVideoStudio(item) {
+  showPage('ai');
+  setActiveNav('ai');
+  switchStudioTab('video');
+  const vidTA = document.getElementById('vidTA');
+  if (vidTA) {
+    // Store the full article for the video generator to use
+    window._vidArticle = item;
+    vidTA.value = item.title;
+    toast("🎬 Opening Video Studio...");
+    setTimeout(() => {
+      document.getElementById('vidGenBtn').click();
+    }, 350);
+  }
+}
+
+function getVideoImageUrl(keywords, index, w, h) {
+  return `https://loremflickr.com/${w || 640}/${h || 360}/${encodeURIComponent(keywords)}?lock=${index + 500}`;
+}
+
+// ── NEWS ENGINE (INFINITE) ────────────────────────────────
+// Tracks which index we've used per category to avoid immediate repeats
+const _batchIdx = {};
+
+function generateBatch(cat, page) {
+  const items = [];
+  const batchSize = 6;
+
+  if (cat === 'All') {
+    // Cycle evenly through all categories
+    const allCats = Object.keys(NEWS_DB);
+    for (let i = 0; i < batchSize; i++) {
+      const c = allCats[(page * batchSize + i) % allCats.length];
+      const pool = NEWS_DB[c];
+      const artIdx = ((page * batchSize + i) * 3) % pool.length;
+      const article = pool[artIdx];
+      items.push(_makeItem(article, c));
+    }
+  } else {
+    // Strictly use only articles from the selected category
+    const pool = NEWS_DB[cat];
+    if (!pool || pool.length === 0) return []; // No data for this category
+
+    // Walk pool sequentially so all articles appear before repeating
+    for (let i = 0; i < batchSize; i++) {
+      const artIdx = (page * batchSize + i) % pool.length;
+      const article = pool[artIdx];
+      items.push(_makeItem(article, cat));
+    }
+  }
+  return items;
+}
+
+function _makeItem(article, category) {
+  const hours = Math.floor(Math.random() * 24);
+  const timeStr = hours === 0 ? `${Math.floor(Math.random()*59)+1}m ago` : `${hours}h ago`;
+  return {
+    title: article.title,
+    category: category,
+    summary: article.summary,
+    time: timeStr,
+    url: article.url || '#',
+    image: null,
+    imgHint: article.imgHint || category.toLowerCase(),
+    source: 'NexBrief',
+    hot: Math.random() < 0.2,
+    mode: 'fallback'
+  };
+}
+
+function loadNews(cat) {
+  newsPage = 0;
+  const feed = document.getElementById('homeFeed');
+  feed.innerHTML = '<div style="text-align:center;padding:40px;color:var(--sub)"><span class="scroll-spinner"></span><br>Synthesizing real-time stories...</div>';
+  
+  fetchGNews(cat).then(articles => {
+    feed.innerHTML = '';
+    if (articles && articles.length > 0) {
+      newsData = articles;
+      renderCards(articles, feed);
+      updateTicker();
+    } else {
+      // Fallback to mock data if API fails
+      const batch = generateBatch(cat, 0);
+      newsData = batch;
+      renderCards(batch, feed);
+      updateTicker();
+      toast("⚠️ Using offline database");
+    }
+    newsPage = 1;
+  });
+}
+
+function loadMoreNews() {
+  if (isLoadingMore) return;
+  isLoadingMore = true;
+  document.getElementById('scrollLoader').style.display = 'block';
+  
+  // GNews free tier has limits, so we'll just append some mock data or re-fetch 
+  // For this demo, let's just generate more mock data for "infinite" feel if we already have real data
+  setTimeout(() => {
+    const batch = generateBatch(currentCat, newsPage);
+    newsData = newsData.concat(batch);
+    const feed = document.getElementById('homeFeed');
+    renderCards(batch, feed);
+    newsPage++;
+    isLoadingMore = false;
+    document.getElementById('scrollLoader').style.display = 'none';
+  }, 600);
+}
+
+// Deleted redundant renderCards
+
+// ── INFINITE SCROLL ───────────────────────────────────────
+function setupInfiniteScroll() {
+  window.addEventListener('scroll', () => {
+    const homePage = document.getElementById('pg-home');
+    if (!homePage.classList.contains('active')) return;
+    
+    const scrollY = window.scrollY + window.innerHeight;
+    const docH = document.documentElement.scrollHeight;
+    
+    if (scrollY >= docH - 400) {
+      loadMoreNews();
+    }
+  }, { passive: true });
+}
+
+// ── TRENDING ──────────────────────────────────────────────
+function loadTrending() {
+  const feed = document.getElementById('trendFeed');
+  feed.innerHTML = '<div style="text-align:center;padding:30px;color:var(--sub)"><span class="scroll-spinner"></span> Scanning trends...</div>';
+  setTimeout(() => {
+    const cats = Object.keys(NEWS_DB);
+    const items = [];
+    for (let i = 0; i < 10; i++) {
+      const c = cats[i % cats.length];
+      const pool = NEWS_DB[c];
+      const a = pool[Math.floor(Math.random() * pool.length)];
+      items.push({ ...a, category: c, time: 'Trending', hot: true, imgIndex: i + 200, imgHint: a.imgHint || c });
+    }
+    feed.innerHTML = '';
+    renderCards(items, feed);
+  }, 700);
+}
+
+// ── BOOKMARKS ─────────────────────────────────────────────
+function toggleBookmark(article, btn) {
+  const idx = bookmarks.findIndex(b => b.title === article.title);
+  if (idx > -1) { bookmarks.splice(idx, 1); btn.classList.remove('saved'); toast("Removed from archive"); }
+  else { bookmarks.push(article); btn.classList.add('saved'); toast("🔖 Saved!"); }
+  localStorage.setItem('nb_bookmarks', JSON.stringify(bookmarks));
+}
+function renderBookmarks() {
+  const feed = document.getElementById('bmFeed');
+  if (!bookmarks.length) {
+    feed.innerHTML = '<div class="empty-state"><div class="es-icon">🔖</div><div class="es-title">Archive Empty</div><div class="es-sub">Tap 🔖 on any story to save it here.</div></div>';
+    return;
+  }
+  feed.innerHTML = '';
+  renderCards(bookmarks.map((b,i) => ({...b, imgIndex: i + 200})), feed);
+}
+
+// ══════════════════════════════════════════════════════════
+//  ENHANCED VOICE ENGINE
+// ══════════════════════════════════════════════════════════
+
+// ── TTS (Text-to-Speech) with Speaker Bar ─────────────────
+function setupSpeakerBar() {
+  document.getElementById('speakerStop').onclick = () => {
+    window.speechSynthesis.cancel();
+    hideSpeakerBar();
+  };
+}
+
+function speakArticle(article) {
+  if (!window.speechSynthesis) { toast("Speech not supported"); return; }
+  window.speechSynthesis.cancel();
+  
+  const text = `NexBrief report from ${userLocation}. ${article.title}. ${article.summary}`;
+  const utter = new SpeechSynthesisUtterance(text);
+  
+  // Pick a good voice
+  const voices = window.speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) ||
+                    voices.find(v => v.lang.startsWith('en') && v.localService) ||
+                    voices[0];
+  if (preferred) utter.voice = preferred;
+  
+  utter.rate = 0.95;
+  utter.pitch = 1.0;
+  utter.volume = 1;
+  
+  utter.onstart = () => showSpeakerBar(article.title);
+  utter.onend = () => hideSpeakerBar();
+  utter.onerror = () => hideSpeakerBar();
+  
+  window.speechSynthesis.speak(utter);
+}
+
+function speakText(text, label) {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  const voices = window.speechSynthesis.getVoices();
+  const pref = voices.find(v => v.name.includes('Google') && v.lang.startsWith('en')) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+  if (pref) u.voice = pref;
+  u.rate = 0.95;
+  u.onstart = () => showSpeakerBar(label || 'Reading...');
+  u.onend = () => hideSpeakerBar();
+  u.onerror = () => hideSpeakerBar();
+  window.speechSynthesis.speak(u);
+}
+
+function showSpeakerBar(title) {
+  isSpeaking = true;
+  const bar = document.getElementById('speakerBar');
+  document.getElementById('speakerLabel').textContent = title.substring(0, 50) + (title.length > 50 ? '...' : '');
+  bar.classList.add('show');
+}
+function hideSpeakerBar() {
+  isSpeaking = false;
+  document.getElementById('speakerBar').classList.remove('show');
+}
+
+// ── STT (Speech-to-Text) with Enhanced Voice Modal ────────
+function setupVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  recognition = new SR();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.lang = VOICE_LANG_MAP[currentLang] || 'en-US';
+  voiceBadge = document.querySelector('.nvi-mic');
+  
+  recognition.onresult = e => {
+    let interim = '', final = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const display = final || interim;
+    const tr = document.getElementById('vTranscript');
+    tr.textContent = `"${display}"`;
+    tr.classList.add('active');
+    
+    if (final) handleVoiceCmd(final.toLowerCase().trim());
+  };
+  
+  recognition.onend = () => {
+    isListening = false;
+    document.getElementById('vOrb').classList.remove('on');
+    document.getElementById('vRing').classList.remove('on');
+    setVoiceListeningState(false);
+    document.getElementById('vStatus').textContent = 'Tap to speak';
+  };
+  
+  recognition.onerror = e => {
+    document.getElementById('vStatus').textContent = 'Error: ' + e.error;
+    isListening = false;
+  };
+}
+
+function startVoice() {
+  document.getElementById('vOvl').classList.add('show');
+  document.getElementById('vOrb').classList.add('on');
+  document.getElementById('vRing').classList.add('on');
+  setVoiceListeningState(true);
+  document.getElementById('vStatus').textContent = 'Listening...';
+  document.getElementById('vTranscript').textContent = 'Say a command...';
+  document.getElementById('vTranscript').classList.remove('active');
+  
+  if (recognition && !isListening) {
+    try { recognition.start(); isListening = true; } catch(e) {}
+  }
+}
+
+function stopVoice() {
+  document.getElementById('vOvl').classList.remove('show');
+  setVoiceListeningState(false);
+  if (recognition && isListening) { try { recognition.stop(); } catch(e) {} }
+  isListening = false;
+}
+
+function handleVoiceCmd(cmd) {
+  setTimeout(() => {
+    stopVoice();
+    
+    const navTo = (page) => {
+      showPage(page);
+      setActiveNav(page);
+    };
+    
+    if (cmd.includes('sport')) { currentCat='Sports'; navTo('home'); loadNews('Sports'); speakText("Showing sports news", "Sports News"); }
+    else if (cmd.includes('tech')) { currentCat='Tech'; navTo('home'); loadNews('Tech'); speakText("Loading technology updates", "Tech News"); }
+    else if (cmd.includes('health')) { currentCat='Health'; navTo('home'); loadNews('Health'); speakText("Health briefing activated", "Health"); }
+    else if (cmd.includes('finance') || cmd.includes('money') || cmd.includes('market')) { currentCat='Finance'; navTo('home'); loadNews('Finance'); speakText("Financial intelligence loading", "Finance"); }
+    else if (cmd.includes('world') || cmd.includes('global')) { currentCat='World'; navTo('home'); loadNews('World'); speakText("World news activated", "World News"); }
+    else if (cmd.includes('trend')) { navTo('trending'); speakText("Here are the trending stories", "Trending"); }
+    else if (cmd.includes('archive') || cmd.includes('saved') || cmd.includes('bookmark')) { navTo('bookmarks'); speakText("Opening your saved archive", "Archive"); }
+    else if (cmd.includes('video') || cmd.includes('reel')) { navTo('ai'); switchStudioTab('video'); speakText("AI Video Studio is ready", "Video Studio"); }
+    else if (cmd.includes('studio') || cmd.includes('summar') || cmd.includes('brief')) { navTo('ai'); switchStudioTab('brief'); speakText("AI Brief is ready. Paste your article.", "Studio"); }
+    else if (cmd.includes('dark')) { if(!isDark) toggleDark(); speakText("Dark mode activated", "Theme"); }
+    else if (cmd.includes('light')) { if(isDark) toggleDark(); speakText("Light mode activated", "Theme"); }
+    else if (cmd.includes('read') || cmd.includes('top') || cmd.includes('news') || cmd.includes('latest')) {
+      currentCat='All'; navTo('home'); loadNews('All');
+      if (newsData.length) speakArticle(newsData[0]);
+      else speakText("Loading the latest news for " + userLocation, "News");
+    }
+    else if (cmd.includes('stop')) { window.speechSynthesis.cancel(); hideSpeakerBar(); toast("⏹ Stopped"); }
+    else if (cmd.includes('refresh')) { loadNews(currentCat); speakText("Refreshing your feed", "Refresh"); }
+    else { speakText("I didn't catch that. Try saying: read news, show sports, or open trending.", "Help"); }
+  }, 600);
+}
+
+// ══════════════════════════════════════════════════════════
+//  AI SUMMARIZER
+// ══════════════════════════════════════════════════════════
+function setupAI() {
+  document.getElementById('aiBtn').onclick = () => {
+    const text = document.getElementById('aiTA').value.trim();
+    if (!text) { toast("⚠️ Paste an article first"); return; }
+    
+    const btn = document.getElementById('aiBtn');
+    btn.innerHTML = "<span>✨ Processing...</span>";
+    btn.disabled = true;
+    document.getElementById('aiBox').style.display = 'none';
+    
+    setTimeout(() => {
+      // Smart extraction: pick key sentences
+      const sentences = text.match(/[^.!?]+[.!?]+/g) || [text];
+      const pick = sentences.length >= 3 ? 
+        [sentences[0].trim(), sentences[Math.floor(sentences.length/2)].trim(), sentences[sentences.length-1].trim()] :
+        sentences.map(s => s.trim());
+      
+      const summary = pick.map((s, i) => `${i+1}. ${s}`).join('\n');
+      
+      document.getElementById('aiTxt').textContent = summary;
+      document.getElementById('aiBox').style.display = 'block';
+      btn.innerHTML = "<span>✨ Summarize</span>";
+      btn.disabled = false;
+      toast("✨ Summary ready");
+    }, 1500);
+  };
+  
+  document.getElementById('aiSpeak').onclick = () => speakText(document.getElementById('aiTxt').textContent, "AI Summary");
+  document.getElementById('aiCopy').onclick = () => {
+    navigator.clipboard.writeText(document.getElementById('aiTxt').textContent).then(() => toast("📋 Copied!"));
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+//  AI VIDEO STUDIO — BROADCAST-GRADE NEWS REEL
+// ══════════════════════════════════════════════════════════
+let vidAnimFrame = null;
+let vidPlaying = false;
+let vidStartTime = 0;
+let vidPausedAt = 0;
+let vidDuration = 25000; // 25 seconds total
+let vidScenes = [];
+let vidImages = [];
+let vidTopic = '';
+let vidNarrationTimers = [];
+
+function setupVideoStudio() {
+  document.getElementById('vidGenBtn').onclick = generateVideo;
+  document.getElementById('vidPlayBtn').onclick = toggleVideoPlay;
+}
+
+function generateVideo() {
+  const topic = document.getElementById('vidTA').value.trim();
+  if (!topic) { toast('⚠️ Enter a topic first'); return; }
+  vidTopic = topic;
+  
+  const btn = document.getElementById('vidGenBtn');
+  btn.innerHTML = '<span>🎬 Building broadcast...</span>';
+  btn.disabled = true;
+  
+  // Use the linked article's data if available
+  const article = window._vidArticle || null;
+  const summary = article ? article.summary : '';
+  const articleImg = article ? article.image : null;
+  const source = article ? (article.source || 'NexBrief') : 'NexBrief';
+  const artUrl = article ? (article.url || '') : '';
+  
+  const keywordsRaw = extractKeywords(topic);
+  const topicWords = topic.split(/\s+/).filter(w => w.length > 3).slice(0, 4);
+  
+  // Build 5 professional news scenes using real article data
+  const scenes = [
+    { type:'intro',    headline: 'BREAKING NEWS', sub: topic, label: 'LIVE REPORT', detail: '' },
+    { type:'detail',   headline: topic.length > 60 ? topic.substring(0,60)+'...' : topic, sub: source + ' — ' + new Date().toLocaleDateString(), label: 'DEVELOPING', detail: '' },
+    { type:'analysis', headline: 'Story Details', sub: summary ? summary.substring(0, 90) + '...' : 'Full story developing — stay tuned.', label: 'ANALYSIS', detail: summary },
+    { type:'data',     headline: 'Key Points', sub: topicWords.map(w => w.toUpperCase()).join(' • '), label: 'KEY FACTS', detail: '' },
+    { type:'closing',  headline: 'NexBrief Intelligence Report', sub: '📍 ' + userLocation + ' — ' + new Date().toLocaleDateString(), label: 'SUMMARY', detail: '' }
+  ];
+  
+  // Preload images: use article's real image first, then keyword-based contextual images
+  vidImages = [];
+  let loaded = 0;
+  const totalImages = 5;
+  
+  const imageUrls = [
+    articleImg || `https://loremflickr.com/640/360/${encodeURIComponent(keywordsRaw)}?lock=1`,
+    `https://loremflickr.com/640/360/${encodeURIComponent(topicWords[0] || topic)}?lock=2`,
+    articleImg || `https://loremflickr.com/640/360/${encodeURIComponent(topicWords[1] || 'news')}?lock=3`,
+    `https://loremflickr.com/640/360/${encodeURIComponent(topicWords[2] || 'global')}?lock=4`,
+    `https://loremflickr.com/640/360/${encodeURIComponent(keywordsRaw)}?lock=5`
+  ];
+  
+  imageUrls.forEach((src, idx) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { loaded++; if (loaded >= totalImages) finishVideoSetup(scenes, btn); };
+    img.onerror = () => { loaded++; if (loaded >= totalImages) finishVideoSetup(scenes, btn); };
+    img.src = src;
+    vidImages.push(img);
+  });
+  
+  // Fallback timeout
+  setTimeout(() => { if (loaded < totalImages) finishVideoSetup(scenes, btn); }, 5000);
+}
+
+function finishVideoSetup(scenes, btn) {
+  vidScenes = scenes;
+  document.getElementById('vidPreview').style.display = 'block';
+  btn.innerHTML = '<span>🎬 Generate News Reel</span>';
+  btn.disabled = false;
+  toast('🎬 Broadcast starting!');
+  playVideo();
+}
+
+function scheduleSceneNarrations() {
+  // Cancel any existing timers
+  vidNarrationTimers.forEach(t => clearTimeout(t));
+  vidNarrationTimers = [];
+
+  const sceneDur = vidDuration / vidScenes.length; // ms per scene
+
+  vidScenes.forEach((scene, i) => {
+    const delay = i * sceneDur;
+    const t = setTimeout(() => {
+      if (!vidPlaying) return;
+      const text = scene.headline + (scene.sub ? '. ' + scene.sub : '');
+      // Stop previous, speak this scene inline
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.rate = 0.92;
+        utt.pitch = 1.0;
+        utt.lang = 'en-US';
+        window.speechSynthesis.speak(utt);
+      }
+    }, delay);
+    vidNarrationTimers.push(t);
+  });
+}
+
+function playVideo() {
+  vidPlaying = true;
+  vidStartTime = performance.now();
+  document.getElementById('vidPlayBtn').textContent = '⏸';
+  renderVideoFrame();
+  scheduleSceneNarrations();
+}
+
+function toggleVideoPlay() {
+  if (vidPlaying) {
+    vidPlaying = false;
+    vidPausedAt = performance.now() - vidStartTime;
+    document.getElementById('vidPlayBtn').textContent = '▶';
+    if (vidAnimFrame) cancelAnimationFrame(vidAnimFrame);
+    // Cancel pending narrations and stop speech when paused
+    vidNarrationTimers.forEach(t => clearTimeout(t));
+    vidNarrationTimers = [];
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  } else {
+    // Resume from pause position
+    vidPlaying = true;
+    vidStartTime = performance.now() - (vidPausedAt || 0);
+    document.getElementById('vidPlayBtn').textContent = '⏸';
+    renderVideoFrame();
+    scheduleSceneNarrations();
+  }
+}
+
+function renderVideoFrame() {
+  if (!vidPlaying) return;
+  
+  const canvas = document.getElementById('vidCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const elapsed = performance.now() - vidStartTime;
+  const progress = Math.min(elapsed / vidDuration, 1);
+  
+  // Progress bar & timer
+  document.getElementById('vidProgressBar').style.width = (progress * 100) + '%';
+  const secs = Math.floor(elapsed / 1000);
+  document.getElementById('vidTime').textContent = `0:${secs.toString().padStart(2, '0')}`;
+  
+  // Current scene
+  const numScenes = vidScenes.length;
+  const sceneIdx = Math.min(Math.floor(progress * numScenes), numScenes - 1);
+  const scene = vidScenes[sceneIdx];
+  const sp = (progress * numScenes) % 1; // scene progress 0-1
+  const transitionDur = 0.15; // 15% of scene for transitions
+  
+  // ── BACKGROUND: Ken Burns effect on DOM Image (Fixes CORS black screen) ──
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  
+  const bgImg = vidImages[sceneIdx];
+  const bgImgDom = document.getElementById('vidBgImg');
+  
+  if (bgImgDom) {
+    if (bgImg && bgImg.src) {
+      if (bgImgDom.src !== bgImg.src) bgImgDom.src = bgImg.src;
+      // CSS Ken Burns
+      const scale = 1.1 + sp * 0.15;
+      const panX = Math.sin(sp * Math.PI) * 10;
+      const panY = Math.cos(sp * Math.PI * 0.5) * 5;
+      bgImgDom.style.transform = `scale(${scale}) translate(${panX}px, ${panY}px)`;
+    } else {
+      bgImgDom.src = '';
+    }
+  }
+  
+  // ── SCENE TRANSITION: cross-fade ──
+  if (sp < transitionDur) {
+    ctx.fillStyle = `rgba(0,0,0,${1 - sp / transitionDur})`;
+    ctx.fillRect(0, 0, W, H);
+  }
+  
+  // ── DARK OVERLAY for text readability ──
+  const overlay = ctx.createLinearGradient(0, 0, 0, H);
+  overlay.addColorStop(0, 'rgba(0,0,0,0.3)');
+  overlay.addColorStop(0.5, 'rgba(0,0,0,0.15)');
+  overlay.addColorStop(0.85, 'rgba(0,0,0,0.7)');
+  overlay.addColorStop(1, 'rgba(0,0,0,0.9)');
+  ctx.fillStyle = overlay;
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+  
+  // ── TOP BAR: NexBrief branding ──
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, W, 32);
+  
+  // Red accent line under top bar
+  ctx.fillStyle = '#E8232A';
+  ctx.fillRect(0, 32, W, 2);
+  
+  // Logo
+  ctx.fillStyle = '#E8232A';
+  ctx.font = 'bold 13px Outfit, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('NexBrief', 12, 21);
+  ctx.fillStyle = '#fff';
+  ctx.fillText('NEWS', 76, 21);
+  
+  // Scene counter top-right (replaces LIVE badge)
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(new Date().toLocaleTimeString(), W - 12, 21);
+  
+  // ── LOWER THIRD: Professional news bar ──
+  const ltY = H - 80;
+  const ltSlide = Math.min(sp * 5, 1); // slide-in animation
+  
+  // Category label bar (red pill)
+  ctx.save();
+  ctx.translate(-W * (1 - ltSlide), 0); // slide from left
+  ctx.fillStyle = '#E8232A';
+  roundRect(ctx, 12, ltY - 4, ctx.measureText(scene.label).width + 20, 20, 4);
+  ctx.font = 'bold 10px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.fillText(scene.label, 22, ltY + 10);
+  ctx.restore();
+  
+  // Main headline bar (dark glass)
+  ctx.save();
+  ctx.translate(-W * (1 - Math.min(sp * 4, 1)), 0);
+  ctx.fillStyle = 'rgba(0,0,0,0.75)';
+  ctx.fillRect(0, ltY + 20, W, 28);
+  
+  // Headline text (typewriter)
+  const headChars = Math.floor(sp * scene.headline.length * 2.5);
+  const headText = scene.headline.substring(0, Math.min(headChars, scene.headline.length));
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 14px Outfit, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(headText, 14, ltY + 39);
+  ctx.restore();
+  
+  // Sub-headline bar
+  ctx.save();
+  ctx.translate(-W * (1 - Math.min(sp * 3.5, 1)), 0);
+  ctx.fillStyle = 'rgba(20,20,30,0.85)';
+  ctx.fillRect(0, ltY + 48, W, 24);
+  
+  const subChars = Math.max(0, Math.floor((sp - 0.2) * scene.sub.length * 3));
+  const subText = scene.sub.substring(0, Math.min(subChars, scene.sub.length));
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.font = '11px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(subText, 14, ltY + 64);
+  ctx.restore();
+  
+  // ── BOTTOM TICKER ──
+  ctx.fillStyle = 'rgba(232,35,42,0.9)';
+  ctx.fillRect(0, H - 22, W, 22);
+  
+  const tickerText = `NexBrief AI News  ●  ${vidTopic}  ●  ${userLocation}  ●  ${new Date().toLocaleDateString()}  ●  AI Generated Broadcast  ●  `;
+  const tickerOffset = (elapsed * 0.05) % (ctx.measureText(tickerText).width + W);
+  ctx.fillStyle = '#fff';
+  ctx.font = '10px Inter, sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(tickerText + tickerText, W - tickerOffset, H - 8);
+  
+  // ── PROGRESS LINE ──
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.fillRect(0, H - 2, W, 2);
+  ctx.fillStyle = '#E8232A';
+  ctx.fillRect(0, H - 2, W * progress, 2);
+  
+  if (progress < 1) {
+    vidAnimFrame = requestAnimationFrame(renderVideoFrame);
+  } else {
+    vidPlaying = false;
+    document.getElementById('vidPlayBtn').textContent = '▶';
+  }
+}
+
+// Rounded rect helper
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function quickVideo(article) {
+  showPage('ai');
+  setActiveNav('ai');
+  document.getElementById('vidTA').value = article.title + '. ' + article.summary;
+  setTimeout(() => document.getElementById('vidGenBtn').click(), 500);
+}
+
+// ── TICKER ────────────────────────────────────────────────
+function updateTicker() {
+  if (newsData.length) {
+    const top = newsData.filter(n => n.hot).concat(newsData).slice(0, 3);
+    document.getElementById('brkTxt').textContent = top.map(n => n.title).join(' ● ') + ` ● 📍 ${userLocation} — All systems green.`;
+  }
+}
+
+// ── UTILS ─────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 3000);
+}
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+
+function setActiveNav(page) {
+  document.querySelectorAll('.nvi[data-page]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.page === page);
+  });
+}
+
+function setVoiceListeningState(active) {
+  if (voiceBadge) voiceBadge.classList.toggle('listening', active);
+}
+
+// Load voices early
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+</script>
+</body>
+</html>
