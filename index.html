@@ -860,6 +860,19 @@ const UI_TEXTS = {
   kn: { searchPlaceholder: 'ಜಗತ್ತಿನ ಸುದ್ದಿಗಳನ್ನು ಹುಡುಕಿ...', homeTitle: '📍 ಹೋಮ್ & ಟಾಪ್ ಸ್ಟೋರೀಸ್', clearResults: 'ಫಲಿತಾಂಶ ತೆರವು' },
   pa: { searchPlaceholder: 'ਦੁਨੀਆ ਭਰ ਦੀਆਂ ਖ਼ਬਰਾਂ ਖੋਜੋ...', homeTitle: '📍 ਹੋਮ ਅਤੇ ਟਾਪ ਸਟੋਰੀਜ਼', clearResults: 'ਨਤੀਜੇ ਸਾਫ਼ ਕਰੋ' }
 };
+const CATEGORY_IMAGE_THEME = {
+  All: ['#E8232A', '#5A1022'],
+  Breaking: ['#E8232A', '#64111B'],
+  Search: ['#5D5FEF', '#1B1E42'],
+  News: ['#D62C31', '#251A2B'],
+  Tech: ['#2BC0E4', '#1B2148'],
+  Sports: ['#FF8A00', '#5C1E12'],
+  Finance: ['#17B26A', '#163125'],
+  Health: ['#22C1C3', '#17404A'],
+  World: ['#4F46E5', '#1C2551'],
+  Education: ['#8B5CF6', '#2C1F4D'],
+  Film: ['#EC4899', '#431D37']
+};
 const VOICE_LANG_MAP = {
   en: 'en-US',
   te: 'te-IN',
@@ -887,6 +900,7 @@ let isLoadingMore = false;
 let newsPage = 0;
 let isSpeaking = false;
 const translationCache = new Map();
+const storyImageCache = new Map();
 
 // ── GNEWS CONFIG ───────────────────────────────────────────
 const GNEWS_KEY = '31854bc64cbdfbf99050fb2876fa1ca5';
@@ -941,28 +955,60 @@ async function fetchGNews(cat, page = 0) {
 }
 
 async function searchGNews(q) {
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=${currentLang}&max=10&token=${GNEWS_KEY}`;
+  let results = [];
   try {
+    const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=${currentLang}&max=10&token=${GNEWS_KEY}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('API Error');
     const data = await res.json();
-    return data.articles.map(a => ({
-      title: a.title,
-      category: 'Search',
-      summary: a.description || a.content.substring(0, 150) + '...',
-      time: 'Matching',
-      image: a.image,
-      url: a.url,
-      source: a.source.name,
-      hot: false,
-      mode: 'live'
-    }));
+    if (data.articles && data.articles.length > 0) {
+      results = data.articles.map(a => ({
+        title: a.title,
+        category: 'Search',
+        summary: a.description || a.content.substring(0, 150) + '...',
+        time: 'Matching',
+        image: a.image,
+        url: a.url,
+        source: a.source.name,
+        hot: false,
+        mode: 'live'
+      }));
+    }
   } catch (e) {
-    console.warn('Search Failed:', e);
-    return null;
+    console.warn('Search API Failed/Rate-limited:', e);
   }
-}
 
+  // Fallback: If live API fails or finds nothing, search local database
+  if (results.length === 0) {
+    const qLower = q.toLowerCase();
+    for (const cat of Object.keys(NEWS_DB)) {
+      if (cat === 'All') continue;
+      const pool = NEWS_DB[cat] || [];
+      for (const article of pool) {
+        if (!article) continue;
+        const tMatch = article.title && article.title.toLowerCase().includes(qLower);
+        const sMatch = article.summary && article.summary.toLowerCase().includes(qLower);
+        
+        if (tMatch || sMatch) {
+          results.push({
+            title: article.title,
+            category: cat,
+            summary: article.summary,
+            time: 'Offline Match',
+            image: null,
+            imgHint: article.imgHint || cat.toLowerCase(),
+            url: article.url || '#',
+            source: 'NexBrief DB',
+            hot: false,
+            mode: 'fallback'
+          });
+        }
+      }
+    }
+  }
+
+  return results.length > 0 ? results : null;
+}
 function getLocalizedCategory(category) {
   return (CATEGORY_LABELS[currentLang] && CATEGORY_LABELS[currentLang][category]) ||
     (CATEGORY_LABELS.en && CATEGORY_LABELS.en[category]) ||
@@ -997,12 +1043,18 @@ async function localizeArticles(articles) {
   if (currentLang === 'en') {
     return articles.map(article => ({
       ...article,
+      baseCategory: article.baseCategory || article.category,
+      baseTitle: article.baseTitle || article.title,
+      baseSummary: article.baseSummary || article.summary,
       category: getLocalizedCategory(article.category)
     }));
   }
 
   return Promise.all(articles.map(async article => ({
     ...article,
+    baseCategory: article.baseCategory || article.category,
+    baseTitle: article.baseTitle || article.title,
+    baseSummary: article.baseSummary || article.summary,
     category: getLocalizedCategory(article.category),
     title: await translateText(article.title, currentLang),
     summary: await translateText(article.summary, currentLang)
@@ -1086,6 +1138,7 @@ const NEWS_DB = {
     {title:"Global Refugee Resettlement Program Achieves 10 Million Target",summary:"UN-coordinated effort successfully relocates displaced populations with education and employment integration in host nations."},
   ],
   News: [
+    {title:"KCR Announces New Comprehensive Welfare Scheme for Telangana Farmers",summary:"Former Chief Minister K. Chandrashekar Rao (KCR) unveils a massive agricultural roadmap, promising enhanced financial support and irrigation projects.",imgHint:"kcr,telangana,politics,india",url:"#"},
     {title:"Supreme Court Upholds Right to Privacy in Digital Age Ruling",summary:"A landmark 7-0 decision establishes strict limits on government surveillance and corporate data collection from citizens."},
     {title:"National Education Policy Implementation Shows Dramatic Results",summary:"Student outcomes improve by 35% in states that fully adopted the new curriculum framework emphasizing critical thinking and digital literacy."},
     {title:"Electric Vehicle Sales Surpass Petrol Cars for First Time",summary:"The tipping point arrives as EV prices drop below ICE vehicles, with charging infrastructure now covering 95% of national highways."},
@@ -1302,20 +1355,207 @@ function extractKeywords(title) {
   return [words[0], words[1], words[words.length - 1]].join(',').toLowerCase();
 }
 
-function getImageUrl(title, category, index, hint) {
-  const keywords = hint || extractKeywords(title);
-  const catPrefix = category && category !== 'All' ? category.toLowerCase() + ',' : '';
-  const query = catPrefix + keywords;
-  
+function createInfoImage(title, summary, category, hint) {
+  const theme = CATEGORY_IMAGE_THEME[category] || CATEGORY_IMAGE_THEME.All;
+  const icon = EMOJI[category] || '🗞️';
+  const keywords = (hint || extractKeywords(`${title} ${summary || ''}`))
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  const xmlSafe = (value) => String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const cropText = (value, max) => {
+    const text = String(value || '').trim();
+    return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+  };
+
+  const wrapText = (value, maxChars, maxLines) => {
+    const words = String(value || '').split(/\s+/).filter(Boolean);
+    const lines = [];
+    let current = '';
+
+    for (const word of words) {
+      const next = current ? `${current} ${word}` : word;
+      if (next.length > maxChars && current) {
+        lines.push(current);
+        current = word;
+        if (lines.length === maxLines - 1) break;
+      } else {
+        current = next;
+      }
+    }
+
+    if (lines.length < maxLines && current) lines.push(current);
+    return lines.slice(0, maxLines).map((line, idx, arr) => {
+      const isLastVisibleLine = idx === arr.length - 1;
+      const fullText = words.join(' ');
+      const joinedVisible = arr.join(' ');
+      return isLastVisibleLine && joinedVisible.length < fullText.length ? `${line}…` : line;
+    });
+  };
+
+  const titleLines = wrapText(cropText(title, 110), 24, 3);
+  const summaryLine = cropText(summary, 88);
+  const keywordMarkup = keywords.map((word, idx) => {
+    const x = 28 + (idx * 128);
+    return `
+      <g transform="translate(${x} 218)">
+        <rect width="108" height="28" rx="14" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.14)"/>
+        <text x="54" y="18" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="white">${xmlSafe(word.toUpperCase())}</text>
+      </g>
+    `;
+  }).join('');
+
+  const titleMarkup = titleLines.map((line, idx) => `
+    <text x="28" y="${98 + (idx * 34)}" font-family="Outfit, Arial, sans-serif" font-size="${idx === 0 ? 28 : 24}" font-weight="800" fill="white">${xmlSafe(line)}</text>
+  `).join('');
+
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${theme[0]}"/>
+          <stop offset="100%" stop-color="${theme[1]}"/>
+        </linearGradient>
+        <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.22)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
+        </linearGradient>
+      </defs>
+      <rect width="640" height="360" fill="url(#bg)"/>
+      <circle cx="548" cy="68" r="116" fill="rgba(255,255,255,0.08)"/>
+      <circle cx="590" cy="314" r="160" fill="rgba(0,0,0,0.16)"/>
+      <rect x="20" y="20" width="600" height="320" rx="28" fill="rgba(9,10,15,0.16)" stroke="rgba(255,255,255,0.12)"/>
+      <text x="30" y="52" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="rgba(255,255,255,0.82)">${xmlSafe(category.toUpperCase())}</text>
+      <text x="592" y="58" text-anchor="end" font-family="Apple Color Emoji, Segoe UI Emoji, sans-serif" font-size="34">${icon}</text>
+      ${titleMarkup}
+      <text x="30" y="190" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="500" fill="rgba(255,255,255,0.82)">${xmlSafe(summaryLine)}</text>
+      ${keywordMarkup}
+      <rect x="28" y="286" width="192" height="40" rx="20" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.18)"/>
+      <text x="124" y="311" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="white">INFO-BASED VISUAL</text>
+      <text x="610" y="318" text-anchor="end" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="rgba(255,255,255,0.7)">NEXBRIEF</text>
+    </svg>
+  `;
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function hashString(value) {
   let hash = 0;
-  for (let i = 0; i < title.length; i++) {
-    hash = ((hash << 5) - hash) + title.charCodeAt(i);
+  const text = String(value || '');
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) - hash) + text.charCodeAt(i);
     hash |= 0;
   }
-  const uniqueLock = Math.abs(hash) + (index || 0);
-  
-  // Use a different provider or better parameters to avoid generic placeholders
-  return `https://loremflickr.com/640/360/${encodeURIComponent(query)}?lock=${uniqueLock}`;
+  return Math.abs(hash);
+}
+
+function buildStoryFallbackImage(item, idx) {
+  const title = item.baseTitle || item.title || '';
+  const summary = item.baseSummary || item.summary || '';
+  const category = item.baseCategory || item.category || 'All';
+  const hint = item.imgHint || extractKeywords(`${title} ${summary}`);
+  const seed = hashString(`${title}|${summary}|${category}|${idx}`);
+  return createInfoImage(item.title, item.summary, item.category, `${hint},${seed}`);
+}
+
+function buildStorySearchQueries(item) {
+  const title = item.baseTitle || item.title || '';
+  const summary = item.baseSummary || item.summary || '';
+  const category = item.baseCategory || item.category || '';
+  const hint = item.imgHint || extractKeywords(`${title} ${summary}`);
+  const shortTitle = title.split(/\s+/).slice(0, 6).join(' ');
+  const queries = [
+    title,
+    shortTitle,
+    [category, hint].filter(Boolean).join(' '),
+    hint.replace(/,/g, ' ')
+  ];
+
+  return [...new Set(queries.map(q => q.trim()).filter(q => q.length > 2))].slice(0, 4);
+}
+
+async function fetchCommonsImage(query) {
+  const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrnamespace=6&gsrlimit=6&prop=imageinfo&iiprop=url&iiurlwidth=960&format=json&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Commons lookup failed');
+  const data = await res.json();
+  const pages = Object.values(data?.query?.pages || {});
+  for (const page of pages) {
+    const info = (page.imageinfo || [])[0];
+    const candidate = info?.thumburl || info?.url;
+    if (candidate) return candidate;
+  }
+  return null;
+}
+
+async function fetchWikipediaImage(query) {
+  const url = `https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=5&prop=pageimages&piprop=thumbnail&pithumbsize=960&format=json&origin=*`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Wikipedia lookup failed');
+  const data = await res.json();
+  const pages = Object.values(data?.query?.pages || {});
+  for (const page of pages) {
+    const candidate = page?.thumbnail?.source;
+    if (candidate) return candidate;
+  }
+  return null;
+}
+
+async function resolveStoryImage(item, idx) {
+  if (item.image) return item.image;
+
+  const title = item.baseTitle || item.title || '';
+  const summary = item.baseSummary || item.summary || '';
+  const category = item.baseCategory || item.category || 'All';
+  const cacheKey = `${title}|${summary}|${category}|${item.imgHint || ''}`;
+  if (storyImageCache.has(cacheKey)) return storyImageCache.get(cacheKey);
+
+  const queries = buildStorySearchQueries(item);
+  for (const query of queries) {
+    try {
+      const commonsImage = await fetchCommonsImage(query);
+      if (commonsImage) {
+        storyImageCache.set(cacheKey, commonsImage);
+        return commonsImage;
+      }
+    } catch (err) {
+      console.warn('Commons image lookup failed:', err.message);
+    }
+
+    try {
+      const wikiImage = await fetchWikipediaImage(query);
+      if (wikiImage) {
+        storyImageCache.set(cacheKey, wikiImage);
+        return wikiImage;
+      }
+    } catch (err) {
+      console.warn('Wikipedia image lookup failed:', err.message);
+    }
+  }
+
+  const fallback = buildStoryFallbackImage(item, idx);
+  storyImageCache.set(cacheKey, fallback);
+  return fallback;
+}
+
+function applyResolvedCardImage(img, item, idx) {
+  if (!img) return;
+  resolveStoryImage(item, idx)
+    .then(src => {
+      if (src) img.src = src;
+    })
+    .catch(err => {
+      console.warn('Story image resolution failed:', err.message);
+      img.src = buildStoryFallbackImage(item, idx);
+    });
 }
 
 function renderCards(data, container) {
@@ -1326,7 +1566,7 @@ function renderCards(data, container) {
     card.tabIndex = 0;
     
     const isSaved = bookmarks.some(b => b.title === item.title);
-    const imgUrl = item.image || getImageUrl(item.title, item.category, item.imgIndex || idx, item.imgHint);
+    const imgUrl = item.image || buildStoryFallbackImage(item, item.imgIndex || idx);
     const sourceLabel = item.source ? `<span class="nsource">${esc(item.source)}</span>` : '';
     const safeCategory = esc(item.category);
     const safeTitle = esc(item.title);
@@ -1334,7 +1574,7 @@ function renderCards(data, container) {
 
     card.innerHTML = `
       <div class="ncard-img">
-        <img src="${imgUrl}" alt="news cover" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=640&q=80'">
+        <img src="${imgUrl}" alt="news cover" loading="lazy">
         <div class="img-overlay"></div>
         <div class="img-badge">Open Article ↗</div>
       </div>
@@ -1380,6 +1620,11 @@ function renderCards(data, container) {
       }
     };
     container.appendChild(card);
+
+    if (!item.image) {
+      const img = card.querySelector('.ncard-img img');
+      applyResolvedCardImage(img, item, item.imgIndex || idx);
+    }
   });
 }
 
