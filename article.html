@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0"/>
+<title>NexBrief News | Full Article</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --accent: #E8232A;
+  --accent-dim: #B81B20;
+  --accent-glow: rgba(232, 35, 42, 0.35);
+  --accent-glow-lo: rgba(232, 35, 42, 0.18);
+  --accent-soft: rgba(232, 35, 42, 0.12);
+  --bg: #0A0A0F;
+  --surface: rgba(20, 18, 25, 0.75);
+  --surface-solid: #14121A;
+  --surface-bright: rgba(38, 34, 46, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border-hi: rgba(255, 255, 255, 0.14);
+  --text: #F0EEF5;
+  --sub: #8E8C95;
+  --blur: 28px;
+  --radius: 18px;
+  --radius-sm: 12px;
+}
+
+body.light {
+  --bg: #F2F0F7;
+  --surface: rgba(255, 255, 255, 0.75);
+  --surface-solid: #FFFFFF;
+  --surface-bright: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.06);
+  --glass-border-hi: rgba(0, 0, 0, 0.12);
+  --text: #1A1A2E;
+  --sub: #6B6978;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  overflow-x: hidden;
+  transition: background 0.5s ease, color 0.5s ease;
+}
+
+.hdr {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border-bottom: 1px solid var(--glass-border);
+  padding: 12px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.back-btn {
+  background: none; border: none; color: var(--text);
+  font-size: 20px; cursor: pointer; padding: 4px;
+}
+.logo { font-family:'Outfit',sans-serif; font-size:20px; font-weight:900; color:var(--accent); }
+.logo span { color:var(--text) }
+
+.art-hero {
+  width: 100%; height: 260px; position: relative;
+  background: var(--surface-solid); overflow: hidden;
+}
+.art-hero img { width: 100%; height: 100%; object-fit: cover; }
+.art-hero .overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
+
+.art-content { padding: 24px 16px; }
+.art-tag {
+  display: inline-block; background: var(--accent-soft);
+  color: var(--accent); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; padding: 4px 10px;
+  border-radius: 6px; margin-bottom: 12px;
+}
+.art-title {
+  font-family: 'Outfit', sans-serif; font-size: 24px;
+  font-weight: 800; line-height: 1.3; margin-bottom: 16px;
+}
+.art-meta {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 12px; color: var(--sub); margin-bottom: 24px;
+}
+.art-body {
+  font-size: 16px; line-height: 1.7; color: var(--text);
+}
+.art-body p { margin-bottom: 16px; }
+
+.art-footer {
+  margin-top: 40px; padding-top: 24px;
+  border-top: 1px solid var(--glass-border);
+}
+.source-btn {
+  display: block; width: 100%; padding: 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+  color: #fff; text-align: center; text-decoration: none;
+  border-radius: var(--radius-sm); font-weight: 700;
+  box-shadow: 0 8px 20px var(--accent-glow);
+}
+
+.bnav {
+  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+  width:100%; max-width:480px;
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  border-top:1px solid var(--glass-border);
+  display:flex; height:68px; z-index:200;
+}
+.nvi {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:3px; border:none; background:none; color:var(--sub);
+  font-size:10px; font-weight:600; cursor:pointer;
+}
+.nvi-icon { font-size:20px; }
+</style>
+</head>
+<body id="art-body">
+
+<header class="hdr">
+  <button class="back-btn" onclick="window.history.back()">←</button>
+  <div class="logo">Nex<span>Brief</span></div>
+  <div style="width: 28px;"></div> <!-- Spacer -->
+</header>
+
+<div id="article-view">
+  <div class="art-hero">
+    <img id="art-img" src="" alt="">
+    <div class="overlay"></div>
+  </div>
+
+  <div class="art-content">
+    <span class="art-tag" id="art-cat">Category</span>
+    <h1 class="art-title" id="art-title">Loading Article...</h1>
+    
+    <div class="art-meta">
+      <span id="art-source">Source</span>
+      <span>•</span>
+      <span id="art-time">Time</span>
+    </div>
+
+    <div class="art-body" id="art-text">
+      <!-- Content populated by JS -->
+    </div>
+
+    <div class="art-footer">
+      <a href="#" class="source-btn" id="art-link" target="_blank">View Original Source ↗</a>
+    </div>
+  </div>
+</div>
+
+<nav class="bnav">
+  <button class="nvi" onclick="location.href='index.html'"><span class="nvi-icon">🏠</span>Home</button>
+  <button class="nvi"><span class="nvi-icon">🔖</span>Save</button>
+  <button class="nvi"><span class="nvi-icon">✨</span>Studio</button>
+</nav>
+
+<script>
+  const isDark = localStorage.getItem('nb_theme') !== 'light';
+  document.body.classList.toggle('light', !isDark);
+
+  function loadArticle() {
+    const data = localStorage.getItem('nb_current_article');
+    if (!data) {
+      document.getElementById('art-title').textContent = "Article not found";
+      return;
+    }
+
+    const article = JSON.parse(data);
+    document.title = article.title + " | NexBrief News";
+    document.getElementById('art-img').src = article.image || article.fallbackImage;
+    document.getElementById('art-cat').textContent = article.category;
+    document.getElementById('art-title').textContent = article.title;
+    document.getElementById('art-source').textContent = article.source || 'NexBrief';
+    document.getElementById('art-time').textContent = article.time;
+    document.getElementById('art-link').href = article.url;
+
+    const contentDiv = document.getElementById('art-text');
+    contentDiv.innerHTML = '';
+    
+    // Generate some fake full content if only summary is available
+    const paragraphs = article.summary.split('\n');
+    paragraphs.forEach(p => {
+      const para = document.createElement('p');
+      para.textContent = p;
+      contentDiv.appendChild(para);
+    });
+
+    // Add some extra placeholder text to make it look like a full article
+    const placeholders = [
+      "The situation continues to evolve as experts monitor the latest developments. Many are looking toward future implications for the industry and the global market.",
+      "In a statement released earlier today, representatives emphasized the importance of sustainable growth and innovation in this sector.",
+      "Citizens and stakeholders are encouraged to stay informed through official channels as more information becomes available in the coming days."
+    ];
+    
+    placeholders.forEach(p => {
+      const para = document.createElement('p');
+      para.textContent = p;
+      contentDiv.appendChild(para);
+    });
+  }
+
+  loadArticle();
+</script>
+</body>
+</html>
