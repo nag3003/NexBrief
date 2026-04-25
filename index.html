@@ -1417,6 +1417,7 @@ window.onload = function() {
   setupVideoStudio();
   setupInfiniteScroll();
   setupSpeakerBar();
+  applyPendingLaunchState();
   initLocation();
 };
 
@@ -2667,6 +2668,30 @@ function quickVideo(article) {
   setTimeout(() => document.getElementById('vidGenBtn').click(), 500);
 }
 
+function applyPendingLaunchState() {
+  const page = localStorage.getItem('nb_pending_page');
+  if (!page) return;
+
+  localStorage.removeItem('nb_pending_page');
+
+  const studioTab = localStorage.getItem('nb_pending_studio_tab') || 'brief';
+  const studioDraft = localStorage.getItem('nb_studio_draft') || '';
+
+  localStorage.removeItem('nb_pending_studio_tab');
+  localStorage.removeItem('nb_studio_draft');
+
+  showPage(page);
+  setActiveNav(page);
+
+  if (page === 'ai') {
+    switchStudioTab(studioTab === 'video' ? 'video' : 'brief');
+    const aiTA = document.getElementById('aiTA');
+    if (aiTA && studioDraft) {
+      aiTA.value = studioDraft;
+    }
+  }
+}
+
 // ── TICKER ────────────────────────────────────────────────
 function updateTicker() {
   if (newsData.length) {
@@ -2701,7 +2726,19 @@ function openArticle(item) {
   };
   
   localStorage.setItem('nb_current_article', JSON.stringify(detailData));
-  window.location.href = 'article.html';
+
+  const params = new URLSearchParams({
+    title: detailData.title,
+    summary: detailData.summary,
+    category: detailData.category,
+    source: detailData.source || 'NexBrief',
+    time: detailData.time || '',
+    image: detailData.image || '',
+    fallbackImage: detailData.fallbackImage || '',
+    url: detailData.url || ''
+  });
+
+  window.location.href = `article.html?${params.toString()}`;
 }
 
 function setActiveNav(page) {

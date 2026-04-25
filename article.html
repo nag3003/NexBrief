@@ -124,12 +124,38 @@ body {
   font-size:10px; font-weight:600; cursor:pointer;
 }
 .nvi-icon { font-size:20px; }
+
+.nvi.saved { color: var(--accent); }
+.nvi.saved .nvi-icon { filter: drop-shadow(0 0 10px var(--accent-glow)); }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 92px;
+  transform: translateX(-50%) translateY(18px);
+  background: var(--surface-solid);
+  color: var(--text);
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border-hi);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  z-index: 300;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 </style>
 </head>
 <body id="art-body">
 
 <header class="hdr">
-  <button class="back-btn" onclick="window.history.back()">←</button>
+  <button class="back-btn" id="back-btn" aria-label="Go back">←</button>
   <div class="logo">Nex<span>Brief</span></div>
   <div style="width: 28px;"></div> <!-- Spacer -->
 </header>
@@ -161,36 +187,134 @@ body {
 </div>
 
 <nav class="bnav">
-  <button class="nvi" onclick="location.href='index.html'"><span class="nvi-icon">🏠</span>Home</button>
-  <button class="nvi"><span class="nvi-icon">🔖</span>Save</button>
-  <button class="nvi"><span class="nvi-icon">✨</span>Studio</button>
+  <button class="nvi" id="home-btn"><span class="nvi-icon">🏠</span>Home</button>
+  <button class="nvi" id="save-btn"><span class="nvi-icon">🔖</span>Save</button>
+  <button class="nvi" id="studio-btn"><span class="nvi-icon">✨</span>Studio</button>
 </nav>
+
+<div class="toast" id="toast"></div>
 
 <script>
   const isDark = localStorage.getItem('nb_theme') !== 'light';
+  const CURRENT_ARTICLE_KEY = 'nb_current_article';
+  const BOOKMARKS_KEY = 'nb_bookmarks';
+  const STUDIO_DRAFT_KEY = 'nb_studio_draft';
+  const STUDIO_PAGE_KEY = 'nb_pending_page';
+  const STUDIO_TAB_KEY = 'nb_pending_studio_tab';
   document.body.classList.toggle('light', !isDark);
 
+  const toastEl = document.getElementById('toast');
+
+  function showToast(message) {
+    if (!toastEl) return;
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    clearTimeout(showToast._timer);
+    showToast._timer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+  }
+
+  function getStoredArticle() {
+    const data = localStorage.getItem(CURRENT_ARTICLE_KEY);
+    if (data) {
+      try {
+        return JSON.parse(data);
+      } catch (err) {
+        console.warn('Unable to parse stored article:', err);
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (!params.toString()) return null;
+
+    const article = {
+      title: params.get('title') || '',
+      summary: params.get('summary') || '',
+      category: params.get('category') || 'News',
+      source: params.get('source') || 'NexBrief',
+      time: params.get('time') || '',
+      image: params.get('image') || '',
+      fallbackImage: params.get('fallbackImage') || '',
+      url: params.get('url') || '#'
+    };
+
+    return article.title ? article : null;
+  }
+
+  function normalizeArticle(article) {
+    return {
+      title: article.title || 'Untitled story',
+      summary: article.summary || 'No summary available.',
+      category: article.category || 'News',
+      source: article.source || 'NexBrief',
+      time: article.time || '',
+      image: article.image || '',
+      fallbackImage: article.fallbackImage || '',
+      url: article.url || '#'
+    };
+  }
+
+  function getBookmarks() {
+    try {
+      const raw = localStorage.getItem(BOOKMARKS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (err) {
+      console.warn('Unable to read bookmarks:', err);
+      return [];
+    }
+  }
+
+  function setBookmarks(bookmarks) {
+    localStorage.setItem(BOOKMARKS_KEY, JSON.stringify(bookmarks));
+  }
+
+  function isSaved(article) {
+    const bookmarks = getBookmarks();
+    return bookmarks.some(b => b.title === article.title && b.summary === article.summary);
+  }
+
+  function updateSaveButton(article) {
+    const saveBtn = document.getElementById('save-btn');
+    if (!saveBtn) return;
+    const saved = isSaved(article);
+    saveBtn.classList.toggle('saved', saved);
+    saveBtn.querySelector('.nvi-icon').textContent = saved ? '✅' : '🔖';
+  }
+
+  function goHome() {
+    window.location.href = 'index.html';
+  }
+
+  function goToStudio(article) {
+    localStorage.setItem(STUDIO_DRAFT_KEY, `${article.title}\n\n${article.summary}`);
+    localStorage.setItem(STUDIO_PAGE_KEY, 'ai');
+    localStorage.setItem(STUDIO_TAB_KEY, 'brief');
+    window.location.href = 'index.html';
+  }
+
   function loadArticle() {
-    const data = localStorage.getItem('nb_current_article');
-    if (!data) {
+    const article = getStoredArticle();
+    if (!article) {
       document.getElementById('art-title').textContent = "Article not found";
+      document.getElementById('art-text').innerHTML = '<p>Please return to the home feed and open a story again.</p>';
+      document.getElementById('art-link').href = 'index.html';
       return;
     }
 
-    const article = JSON.parse(data);
-    document.title = article.title + " | NexBrief News";
-    document.getElementById('art-img').src = article.image || article.fallbackImage;
-    document.getElementById('art-cat').textContent = article.category;
-    document.getElementById('art-title').textContent = article.title;
-    document.getElementById('art-source').textContent = article.source || 'NexBrief';
-    document.getElementById('art-time').textContent = article.time;
-    document.getElementById('art-link').href = article.url;
+    const safeArticle = normalizeArticle(article);
+    document.title = safeArticle.title + " | NexBrief News";
+    document.getElementById('art-img').src = safeArticle.image || safeArticle.fallbackImage || 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360"><rect width="100%" height="100%" fill="#14121A"/><text x="50%" y="50%" fill="#fff" text-anchor="middle" dominant-baseline="middle" font-family="Inter, Arial, sans-serif" font-size="20">NexBrief</text></svg>`);
+    document.getElementById('art-img').alt = safeArticle.title;
+    document.getElementById('art-cat').textContent = safeArticle.category;
+    document.getElementById('art-title').textContent = safeArticle.title;
+    document.getElementById('art-source').textContent = safeArticle.source || 'NexBrief';
+    document.getElementById('art-time').textContent = safeArticle.time || 'Just now';
+    document.getElementById('art-link').href = safeArticle.url || 'index.html';
 
     const contentDiv = document.getElementById('art-text');
     contentDiv.innerHTML = '';
     
-    // Generate some fake full content if only summary is available
-    const paragraphs = article.summary.split('\n');
+    const summaryText = String(safeArticle.summary || '').trim();
+    const paragraphs = summaryText ? summaryText.split('\n') : ['No summary is available for this story yet.'];
     paragraphs.forEach(p => {
       const para = document.createElement('p');
       para.textContent = p;
@@ -209,9 +333,39 @@ body {
       para.textContent = p;
       contentDiv.appendChild(para);
     });
+
+    updateSaveButton(safeArticle);
+
+    document.getElementById('save-btn').onclick = () => {
+      const bookmarks = getBookmarks();
+      const existingIndex = bookmarks.findIndex(b => b.title === safeArticle.title && b.summary === safeArticle.summary);
+      if (existingIndex > -1) {
+        bookmarks.splice(existingIndex, 1);
+        setBookmarks(bookmarks);
+        updateSaveButton(safeArticle);
+        showToast('Removed from archive');
+      } else {
+        bookmarks.unshift(safeArticle);
+        setBookmarks(bookmarks.slice(0, 50));
+        updateSaveButton(safeArticle);
+        showToast('Saved to archive');
+      }
+    };
+
+    document.getElementById('studio-btn').onclick = () => goToStudio(safeArticle);
   }
 
   loadArticle();
+
+  document.getElementById('back-btn').onclick = () => {
+    if (document.referrer && new URL(document.referrer).origin === window.location.origin) {
+      window.history.back();
+      return;
+    }
+    goHome();
+  };
+
+  document.getElementById('home-btn').onclick = goHome;
 </script>
 </body>
 </html>
