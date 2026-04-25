@@ -940,18 +940,7 @@ const CATEGORY_IMAGE_THEME = {
   Education: ['#8B5CF6', '#2C1F4D'],
   Film: ['#EC4899', '#431D37']
 };
-const VOICE_LANG_MAP = {
-  en: 'en-US',
-  te: 'te-IN',
-  hi: 'hi-IN',
-  ta: 'ta-IN',
-  ml: 'ml-IN',
-  mr: 'mr-IN',
-  bn: 'bn-IN',
-  gu: 'gu-IN',
-  kn: 'kn-IN',
-  pa: 'pa-IN'
-};
+const VOICE_COMMAND_LANG = 'en-US';
 
 let newsData = [];
 let bookmarks = JSON.parse(localStorage.getItem('nb_bookmarks') || '[]');
@@ -960,9 +949,11 @@ let currentLang = localStorage.getItem('nb_lang') || 'en';
 let isDark = localStorage.getItem('nb_theme') !== 'light';
 let userLocation = "Your Area";
 let userLat = null, userLon = null;
+let speechRecognitionCtor = null;
 let recognition = null;
 let voiceBadge = null;
 let isListening = false;
+let isVoiceStarting = false;
 let isLoadingMore = false;
 let newsPage = 0;
 let isSpeaking = false;
@@ -1552,7 +1543,6 @@ function setupButtons() {
   document.getElementById('langSel').onchange = (e) => {
     currentLang = e.target.value;
     localStorage.setItem('nb_lang', currentLang);
-    if (recognition) recognition.lang = VOICE_LANG_MAP[currentLang] || 'en-US';
     applyLanguageUI();
     toast("🌐 Language updated");
     newsPage = 0;
@@ -2153,9 +2143,80 @@ function hideSpeakerBar() {
   document.getElementById('speakerBar').classList.remove('show');
 }
 
+async function prepareVoiceRecognition() {
+  if (!recognition || !speechRecognitionCtor) {
+    return { mode: 'unsupported' };
+  }
+
+  recognition.lang = VOICE_COMMAND_LANG;
+
+  const hasOnDeviceSupport =
+    typeof speechRecognitionCtor.available === 'function' &&
+    typeof speechRecognitionCtor.install === 'function' &&
+    'processLocally' in recognition;
+
+  if (!hasOnDeviceSupport) {
+    if ('processLocally' in recognition) {
+      recognition.processLocally = false;
+    }
+    return { mode: 'cloud' };
+  }
+
+  try {
+    const availability = await speechRecognitionCtor.available({
+      langs: [VOICE_COMMAND_LANG],
+      processLocally: true,
+    });
+
+    if (availability === 'available') {
+      recognition.processLocally = true;
+      return { mode: 'local' };
+    }
+
+    if (availability === 'downloadable' || availability === 'downloading') {
+      document.getElementById('vStatus').textContent = 'Preparing mic...';
+      document.getElementById('vHint').textContent = 'Installing English speech support...';
+      const installed = await speechRecognitionCtor.install({
+        langs: [VOICE_COMMAND_LANG],
+      });
+
+      if (installed) {
+        recognition.processLocally = true;
+        return { mode: 'local' };
+      }
+    }
+  } catch (err) {
+    console.warn('On-device speech prep failed:', err);
+  }
+
+  recognition.processLocally = false;
+  return { mode: 'cloud' };
+}
+
+function getVoiceErrorHint(err) {
+  switch (err) {
+    case 'not-allowed':
+    case 'service-not-allowed':
+      return 'Allow microphone access, then try again.';
+    case 'audio-capture':
+      return 'No microphone was found or it is busy in another app.';
+    case 'no-speech':
+      return 'No speech was detected. Try again and speak a little more clearly.';
+    case 'language-not-supported':
+      return 'This browser does not support English speech recognition right now.';
+    case 'network':
+      return 'Speech service unavailable. The app will use on-device speech when your browser supports it.';
+    case 'aborted':
+      return 'Speech recognition was stopped.';
+    default:
+      return 'Check microphone permission and try again.';
+  }
+}
+
 // ── STT (Speech-to-Text) with Enhanced Voice Modal ────────
 function setupVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  speechRecognitionCtor = SR;
   voiceBadge = document.querySelector('.nvi-mic');
   if (!SR) {
     if (voiceBadge) {
@@ -2169,10 +2230,14 @@ function setupVoice() {
   recognition.continuous = false;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
-  recognition.lang = VOICE_LANG_MAP[currentLang] || 'en-US';
+  recognition.lang = VOICE_COMMAND_LANG;
+  if ('processLocally' in recognition) {
+    recognition.processLocally = false;
+  }
 
   recognition.onstart = () => {
     isListening = true;
+    isVoiceStarting = false;
     document.getElementById('vStatus').textContent = 'Listening...';
     document.getElementById('vHint').textContent = 'Speak a command, then wait for the result.';
     setVoiceListeningState(true);
@@ -2202,6 +2267,7 @@ function setupVoice() {
   
   recognition.onend = () => {
     isListening = false;
+    isVoiceStarting = false;
     document.getElementById('vOrb').classList.remove('on');
     document.getElementById('vRing').classList.remove('on');
     setVoiceListeningState(false);
@@ -2212,12 +2278,17 @@ function setupVoice() {
   recognition.onerror = e => {
     const err = e?.error || 'unknown';
     document.getElementById('vStatus').textContent = 'Mic error';
-    document.getElementById('vHint').textContent = err === 'not-allowed' || err === 'service-not-allowed'
-      ? 'Allow microphone access, then try again.'
-      : 'Check microphone permission and try again.';
-    toast(`🎙️ Mic issue: ${err}`);
+    document.getElementById('vHint').textContent = getVoiceErrorHint(err);
     isListening = false;
+    isVoiceStarting = false;
     setVoiceListeningState(false);
+
+    if (err === 'network') {
+      toast('🎙️ Speech service unavailable');
+      return;
+    }
+
+    toast(`🎙️ Mic issue: ${err}`);
   };
 
   recognition.onnomatch = () => {
@@ -2227,9 +2298,12 @@ function setupVoice() {
   };
 }
 
-function startVoice() {
+async function startVoice() {
   if (!recognition) {
     toast("🎙 Voice commands are not supported here");
+    return;
+  }
+  if (isVoiceStarting) {
     return;
   }
   if (isListening) {
@@ -2245,6 +2319,7 @@ function startVoice() {
   document.getElementById('vOrb').classList.add('on');
   document.getElementById('vRing').classList.add('on');
   setVoiceListeningState(true);
+  isVoiceStarting = true;
   document.getElementById('vStatus').textContent = 'Starting mic...';
   document.getElementById('vTranscript').textContent = 'Say a command...';
   document.getElementById('vTranscript').classList.remove('active');
@@ -2252,24 +2327,32 @@ function startVoice() {
   
   if (recognition && !isListening) {
     try {
+      await prepareVoiceRecognition();
+      if (!document.getElementById('vOvl').classList.contains('show')) {
+        isVoiceStarting = false;
+        return;
+      }
       recognition.start();
     } catch (e) {
       console.warn('SpeechRecognition start error:', e);
       document.getElementById('vStatus').textContent = 'Mic unavailable';
-      document.getElementById('vHint').textContent = 'Error starting mic: ' + e.message;
+      document.getElementById('vHint').textContent = getVoiceErrorHint(e?.error || e?.name || 'unknown');
       document.getElementById('vOrb').classList.remove('on');
       document.getElementById('vRing').classList.remove('on');
       setVoiceListeningState(false);
       isListening = false;
+      isVoiceStarting = false;
       toast('🎙️ Mic permission is blocked or unavailable');
     }
   }
 }
 
 function stopVoice() {
+  const wasStarting = isVoiceStarting;
   document.getElementById('vOvl').classList.remove('show');
   setVoiceListeningState(false);
-  if (recognition && isListening) { try { recognition.stop(); } catch(e) {} }
+  if (recognition && (isListening || wasStarting)) { try { recognition.abort ? recognition.abort() : recognition.stop(); } catch(e) {} }
+  isVoiceStarting = false;
   isListening = false;
 }
 
