@@ -1,0 +1,9 @@
+{
+  "name": "nexbrief-news",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static NexBrief news app",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
